@@ -62,7 +62,7 @@ services:
     command: ["uv", "run", "graphiti_mcp_server.py", "--transport", "sse"]
   
   neo4j:
-    image: neo4j:5.22.0
+    image: neo4j:5.26.0
     
     ports:
         - "7474:7474"  # HTTP
