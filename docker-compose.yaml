@@ -14,6 +14,7 @@ services:
       - "5678:5678"
     environment:
       - GENERIC_TIMEZONE=${GENERIC_TIMEZONE}
+      - N8N_SECURE_COOKIE=${N8N_SECURE_COOKIE}
     volumes:
       - n8n_data:/home/node/.n8n
 
