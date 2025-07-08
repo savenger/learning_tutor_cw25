@@ -1,16 +1,20 @@
-FROM python:3.13
+# Use an official Node.js runtime as a parent image
+FROM node:18-alpine
 
-
+# Set the working directory in the container
 WORKDIR /app
 
+# Copy package.json and package-lock.json to the working directory
+COPY package*.json ./
 
-COPY ./requirements.txt /app/requirements.txt
+# Install dependencies
+RUN npm install
 
+# Copy the rest of the application code
+COPY . .
 
-RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
+# Expose the port the app runs on
+EXPOSE 3001
 
-
-COPY . /app
-
-
-CMD ["fastapi", "run", "main.py", "--port", "80"]
+# Command to run the application
+CMD ["npm", "start"]
