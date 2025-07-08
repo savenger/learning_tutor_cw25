@@ -4,6 +4,11 @@ services:
     build: backend
     ports:
       - 8080:80
+    environment:
+      - DB_HOST=psql_backend
+      - DB_PORT=5433
+      - DB_USER=backend
+      - DB_PASSWORD=backend
     volumes:
       - ./backend:/app
 
@@ -14,6 +19,13 @@ services:
       - "5678:5678"
     environment:
       - GENERIC_TIMEZONE=${GENERIC_TIMEZONE}
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_DATABASE=n8n
+      - DB_POSTGRESDB_HOST=psql_n8n
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_USER=n8n
+      - DB_POSTGRESDB_SCHEMA=public
+      - DB_POSTGRESDB_PASSWORD=n8n
       - N8N_SECURE_COOKIE=${N8N_SECURE_COOKIE}
     volumes:
       - n8n_data:/home/node/.n8n
@@ -41,8 +53,32 @@ services:
         - neo4j_data:/data
     environment:
         - NEO4J_AUTH=${NEO4J_USER}/${NEO4J_PASSWORD}
+  
+  psql_n8n:
+    image: postgres
+    environment:
+      - POSTGRES_DB=n8n
+      - POSTGRES_USER=n8n
+      - POSTGRES_PASSWORD=n8n
+    volumes: 
+      - psql_n8n:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+  
+  psql_backend:
+    image: postgres
+    environment:
+      - POSTGRES_DB=backend
+      - POSTGRES_USER=backend
+      - POSTGRES_PASSWORD=backend
+    volumes: 
+      - psql_backend:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
 
 volumes:
   neo4j_data:
   n8n_data:
   n8n_shared_files:
+  psql_n8n:
+  psql_backend:
