@@ -59,6 +59,21 @@ export const deleteDeck = async (id: number) => {
   return fetchData<{ message: string }>(`${BASE_URL}/decks/${id}`, 'DELETE');
 };
 
+// Get next unseen card from a deck
+export const getNextUnseenCard = async (deckId: number) => {
+  return fetchData<Flashcard>(`${BASE_URL}/decks/${deckId}/next-card`);
+};
+
+// Reset all cards in a deck to unseen
+export const resetDeckCards = async (deckId: number) => {
+  return fetchData<{ message: string; affectedRows: number }>(`${BASE_URL}/decks/${deckId}/reset-cards`, 'POST');
+};
+
+// Get count of unseen cards in a deck
+export const getUnseenCardCount = async (deckId: number) => {
+  return fetchData<{ unseenCount: number; totalCount: number; seenCount: number }>(`${BASE_URL}/decks/${deckId}/unseen-count`);
+};
+
 // Flashcard Management
 export const getAllFlashcards = async () => {
   return fetchData<Flashcard[]>(`${BASE_URL}/flashcards`);
@@ -91,6 +106,13 @@ export const deleteFlashcard = async (id: number) => {
   return fetchData<{ message: string }>(
     `${BASE_URL}/flashcards/${id}`,
     'DELETE'
+  );
+};
+
+export const resetFlashcardsSeen = async () => {
+  return fetchData<{ message: string; affectedRows: number }>(
+    `${BASE_URL}/flashcards/reset-seen`,
+    'POST'
   );
 };
 
