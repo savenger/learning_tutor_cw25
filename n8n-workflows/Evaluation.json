@@ -1,0 +1,465 @@
+{
+  "name": "Evaluation",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.USER_ANSWER }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are an AI tutor tasked with evaluating a user's learning progress. You will be given a question, the correct answer, and the user's answer. Your job is to determine if the user's answer is correct, partially correct, or incorrect, and provide appropriate feedback.\n\nHere is the question:\n<question>\n{{ $json.QUESTION }}\n</question>\n\nHere is the correct answer:\n<correct_answer>\n{{ $json.CORRECT_ANSWER }}\n</correct_answer>\n\nHere is the user's answer:\n<user_answer>\n{{ $json.USER_ANSWER }}\n</user_answer>\n\nEvaluate the user's answer carefully. Consider the following:\n\n1. If the user's answer is completely correct and covers all key points in the correct answer, it should be marked as \"success\".\n2. If the user's answer is partially correct or missing some key points, it should be marked as \"hint\".\n3. If the user's answer is completely incorrect or irrelevant, it should be marked as \"incorrect\".\n\nFor \"hint\" and \"incorrect\" responses, generate appropriate hints to guide the user towards the correct answer without giving away the full solution. These hints should be based on the discrepancies between the user's answer and the correct answer.\n\nProvide your evaluation in the following format:\n\n<evaluation>\n<analysis>\n[Your detailed analysis of the user's answer, comparing it to the correct answer and explaining why it is correct, partially correct, or incorrect]\n</analysis>\n\n<hint>\n[If applicable, provide a hint to guide the user towards the correct answer. Omit this section if the answer is completely correct]\n</hint>\n\n<result>[success/hint/incorrect]</result>\n</evaluation>\n\nRemember, your goal is to help the user learn, so be encouraging in your feedback while still accurately assessing their answer."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        1040,
+        -60
+      ],
+      "id": "4bcc389c-0192-49c7-96b9-c65caae759d8",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-3-5-sonnet-20241022",
+          "mode": "list",
+          "cachedResultName": "Claude Sonnet 3.5 (New)"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        1040,
+        120
+      ],
+      "id": "e7e930b1-2873-4f03-92f6-7961a5aae011",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "SPLBD7pfrDx1wSgH",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "evaluate",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -220,
+        -100
+      ],
+      "id": "fa2e8f9b-b834-4d3c-a1f1-04e5e8210cee",
+      "name": "Webhook",
+      "webhookId": "c402fd6f-f1e1-4edb-84cf-4c448e71569a"
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2660,
+        -120
+      ],
+      "id": "1d34fb90-6d3c-499b-b71a-bbba10404c7d",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2863a799-8493-4d07-9351-c3199092335a",
+              "name": "text",
+              "value": "Sorry, request could not been resolved.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        840,
+        260
+      ],
+      "id": "e8470325-a90e-4eae-8eb5-d09f1bb3953a",
+      "name": "Invalid Input"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "bd248576-61fb-45f6-a10e-14a051bfcd31",
+              "name": "environment",
+              "value": "prod",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        20,
+        -100
+      ],
+      "id": "221e9b71-88bf-4f86-82d8-8cb210b2c65c",
+      "name": "initial vars"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ecb15f9a-ec62-40ac-aee9-92710a0044eb",
+              "leftValue": "={{ $('initial vars').item.json.environment }}",
+              "rightValue": "debug",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        440,
+        -200
+      ],
+      "id": "0f89d684-9152-426d-b546-944123678ddf",
+      "name": "environment check"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "65386b0f-8cf8-4c06-bf2b-c7feb99fbf54",
+              "leftValue": "={{ $('Webhook').item.json.body.messages }}",
+              "rightValue": 1,
+              "operator": {
+                "type": "array",
+                "operation": "lengthGt",
+                "rightType": "number"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        220,
+        -100
+      ],
+      "id": "e420f10f-5a28-4edc-a7ed-b3132be45a86",
+      "name": "input present",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "\n  {\n    \"output\": {\n      \"evaluation\": {\n        \"analysis\": \"The answer provided (Kiel) is completely incorrect. Kiel is actually a city in northern Germany, not the capital of France. The capital of France is Paris.\",\n        \"hint\": \"Think about one of the most famous cities in the world, known for landmarks like the Eiffel Tower and the Louvre Museum. This city is often called the 'City of Light'.\",\n        \"result\": \"incorrect\"\n      }\n    }\n  }",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        840,
+        -320
+      ],
+      "id": "5f3a74fa-2243-49fc-bc68-d7503d7ab2a6",
+      "name": "debug values"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3624a4dd-e09a-4a68-b52d-e843a62a61d2",
+              "name": "QUESTION",
+              "value": "={{ $('Webhook').item.json.body.messages.filter(item => item.type == 'question').first().message }}",
+              "type": "string"
+            },
+            {
+              "id": "f3bf35cf-572c-4cd0-9c23-902939cb8dcf",
+              "name": "USER_ANSWER",
+              "value": "={{ $('Webhook').item.json.body.messages.filter(item => item.type == 'answer').last().message }}",
+              "type": "string"
+            },
+            {
+              "id": "bb6313c6-4131-4056-8605-9f65cd3c6095",
+              "name": "CORRECT_ANSWER",
+              "value": "Paris",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        840,
+        -60
+      ],
+      "id": "6d22ae07-7c7c-4082-9266-225ae76d8aff",
+      "name": "extract Q & A"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n    \"evaluation\": {\n        \"analysis\": \"The answer 'Kiel' is incorrect. Kiel is a city in northern Germany, while the capital of France is Paris. This appears to be a complete misunderstanding of the correct answer.\\n\",\n        \"hint\": \"\\nThink about one of the most famous cities in the world, known for the Eiffel Tower and being the cultural heart of France. This city has been France's capital for many centuries.\\n\",\n        \"result\": \"incorrect\"\n    }\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1200,
+        120
+      ],
+      "id": "ebb7fb7a-4119-427a-b7c1-2b5dafa7dce7",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"role\": \"assistant\",\n  \"type\": \"{{ $json.output.evaluation.result === 'success' ? 'success' : 'hint' }}\",\n  \"message\": \"{{ $json.output.evaluation.hint.replace('\"',\"'\") }}\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1400,
+        -60
+      ],
+      "id": "1ea63800-b8b2-4bc6-927e-53e27ee14475",
+      "name": "format for web-hook response"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "content-type": "application/json",
+            "user-agent": "PostmanRuntime/7.44.1",
+            "accept": "*/*",
+            "cache-control": "no-cache",
+            "postman-token": "e72b077b-b57f-4019-8dfa-6ef3980fb4b2",
+            "host": "localhost:5678",
+            "accept-encoding": "gzip, deflate, br",
+            "connection": "keep-alive",
+            "content-length": "221"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "messages": [
+              {
+                "role": "assistant",
+                "type": "question",
+                "message": "What is the capital of France?"
+              },
+              {
+                "role": "user",
+                "type": "answer",
+                "message": "Kiel"
+              }
+            ]
+          },
+          "webhookUrl": "http://localhost:5678/webhook-test/evaluate",
+          "executionMode": "test"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "initial vars",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "format for web-hook response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Invalid Input": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "initial vars": {
+      "main": [
+        [
+          {
+            "node": "input present",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "environment check": {
+      "main": [
+        [
+          {
+            "node": "debug values",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "extract Q & A",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "input present": {
+      "main": [
+        [
+          {
+            "node": "environment check",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Invalid Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "debug values": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "extract Q & A": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "format for web-hook response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "77457c68-9fd6-484a-b7b9-baea49221fb0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e057fe4b559f465360e2e60b420b9b43619c1b1716a0993931ca0ddf89b6dca9"
+  },
+  "id": "SRyoCRiyQZLZTubN",
+  "tags": []
+}
