@@ -71,7 +71,7 @@ router.post('/validate', async (req, res) => {
       messages: conversationMessages
     };
 
-    const feedbackResponse = await axios.post('http://n8n/webhook/evaluate', conversationHistory);
+    const feedbackResponse = await axios.post('http://n8n:5678/webhook/evaluate', conversationHistory);
     
     // Extract evaluation result
     const evaluationResult = feedbackResponse.data;
