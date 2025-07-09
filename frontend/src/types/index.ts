@@ -12,6 +12,8 @@ export interface Flashcard {
   question: string;
   answer: string;
   deckId: number; // Foreign key to Deck
+  seen: boolean;
+  score: number;
   createdAt: string; // ISO 8601 datetime string
   updatedAt: string; // ISO 8601 datetime string
 }

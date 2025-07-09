@@ -114,14 +114,14 @@ paths:
         '500':
           description: Internal server error
 
-  /cards:
+  /decks/{deck_id}/cards:
     get:
       summary: Draw a random card from a deck
       description: Returns a random card from the specified deck
       operationId: drawCard
       parameters:
         - name: deck_id
-          in: query
+          in: path
           required: true
           description: The ID of the deck to draw from
           schema:

@@ -79,7 +79,7 @@ router.post('/processDocument', upload.single('document'), async (req, res) => {
     formData.append('size', req.file.size.toString());
 
     // Forward to webhook
-    const webhookUrl = 'https://julmar.app.n8n.cloud/webhook-test/ffd828f4-3bb5-465c-9b5e-b76bd8facf19';
+    const webhookUrl = 'http://n8n/webhook-test/ffd828f4-3bb5-465c-9b5e-b76bd8facf19';
     
     console.log('Forwarding file to webhook...');
     const response = await axios.post(webhookUrl, formData, {

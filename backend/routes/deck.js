@@ -32,6 +32,110 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// GET next unseen card from a deck
+router.get('/:id/next-card', async (req, res) => {
+  try {
+    const deckId = req.params.id;
+    
+    // Check if deck exists
+    const deck = await Deck.findByPk(deckId);
+    if (!deck) {
+      res.status(404).json({ message: 'No deck found with this id!' });
+      return;
+    }
+
+    // Find the first unseen card in this deck
+    const unseenCard = await Flashcard.findOne({
+      where: {
+        deckId: deckId,
+        seen: false
+      },
+      order: [['id', 'ASC']] // Get cards in order
+    });
+
+    if (!unseenCard) {
+      res.status(404).json({ message: 'No unseen cards remaining in this deck!' });
+      return;
+    }
+
+    // Return the card with deck information
+    const cardWithDeck = await Flashcard.findByPk(unseenCard.id, {
+      include: [{ model: Deck, as: 'Deck' }],
+    });
+
+    res.status(200).json(cardWithDeck);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json(err);
+  }
+});
+
+// GET count of unseen cards in a deck
+router.get('/:id/unseen-count', async (req, res) => {
+  try {
+    const deckId = req.params.id;
+    
+    // Check if deck exists
+    const deck = await Deck.findByPk(deckId);
+    if (!deck) {
+      res.status(404).json({ message: 'No deck found with this id!' });
+      return;
+    }
+
+    // Count unseen cards
+    const unseenCount = await Flashcard.count({
+      where: {
+        deckId: deckId,
+        seen: false
+      }
+    });
+
+    // Count total cards
+    const totalCount = await Flashcard.count({
+      where: {
+        deckId: deckId
+      }
+    });
+
+    res.status(200).json({
+      unseenCount,
+      totalCount,
+      seenCount: totalCount - unseenCount
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json(err);
+  }
+});
+
+// POST reset all cards in a deck to unseen
+router.post('/:id/reset-cards', async (req, res) => {
+  try {
+    const deckId = req.params.id;
+    
+    // Check if deck exists
+    const deck = await Deck.findByPk(deckId);
+    if (!deck) {
+      res.status(404).json({ message: 'No deck found with this id!' });
+      return;
+    }
+
+    // Reset all cards in this deck to unseen
+    const [affectedRows] = await Flashcard.update(
+      { seen: false },
+      { where: { deckId: deckId } }
+    );
+
+    res.status(200).json({ 
+      message: 'All cards in deck reset successfully!',
+      affectedRows 
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json(err);
+  }
+});
+
 // POST create a new deck
 router.post('/', async (req, res) => {
   try {
