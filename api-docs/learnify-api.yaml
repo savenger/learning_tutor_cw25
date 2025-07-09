@@ -49,26 +49,6 @@ paths:
                       content:
                         type: success
                         message: Correct!
-              skip_case:
-                summary: Skip case example
-                description: Example where user skips the card
-                value:
-                  messages:
-                    - role: assistant
-                      content:
-                        type: question
-                        message: What is the capital of France?
-                    - role: user
-                      content:
-                        type: answer
-                        message: Kiel
-                    - role: assistant
-                      content:
-                        type: hint
-                        message: Think of the city known as the 'City of Light' and famous for the Eiffel Tower.
-                    - role: user
-                      content:
-                        type: skip
       responses:
         '200':
           description: Evaluation result
@@ -193,9 +173,7 @@ components:
           enum: [user]
           description: Role identifier for user messages
         content:
-          oneOf:
-            - $ref: '#/components/schemas/UserSkipsCard'
-            - $ref: '#/components/schemas/UserSendsAnswer'
+          $ref: '#/components/schemas/UserSendsAnswer'
           description: Content of the user message
 
     Question:
@@ -245,16 +223,6 @@ components:
         message:
           type: string
           description: Hint message to help user find correct answer
-
-    UserSkipsCard:
-      type: object
-      required:
-        - type
-      properties:
-        type:
-          type: string
-          enum: [skip]
-          description: Type identifier for user skipping the card
 
     UserSendsAnswer:
       type: object
