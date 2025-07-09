@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { Deck, Flashcard } = require('../models');
+const { Deck, Flashcard, sequelize } = require('../models');
 const { Op } = require('sequelize'); // Import Op for operators if needed
 
 // GET all decks
@@ -44,22 +44,24 @@ router.get('/:id/next-card', async (req, res) => {
       return;
     }
 
-    // Find the first unseen card in this deck
-    const unseenCard = await Flashcard.findOne({
-      where: {
-        deckId: deckId,
-        seen: false
-      },
-      order: [['id', 'ASC']] // Get cards in order
-    });
-
-    if (!unseenCard) {
+    const [results] = await sequelize.query(`
+      SELECT * 
+      FROM "Flashcards" 
+      WHERE "deckId"=${deck.id}
+      ORDER BY 
+        (CASE WHEN "seen" THEN 0 ELSE 10 END + COALESCE("score", 0) + FLOOR(random() * 3)) DESC 
+      LIMIT 1;`
+    );
+    
+    if (!results.length) {
       res.status(404).json({ message: 'No unseen cards remaining in this deck!' });
       return;
     }
 
+    const card = results[0];  // ← the single highest-ranked flashcard
+
     // Return the card with deck information
-    const cardWithDeck = await Flashcard.findByPk(unseenCard.id, {
+    const cardWithDeck = await Flashcard.findByPk(card.id, {
       include: [{ model: Deck, as: 'Deck' }],
     });
 
