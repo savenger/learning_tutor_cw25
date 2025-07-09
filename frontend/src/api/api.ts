@@ -120,14 +120,12 @@ export const resetFlashcardsSeen = async () => {
 export const validateFlashcardAnswer = async (
   flashcardId: number,
   userAnswer: string,
-  time: string,
-  sessionId?: string
+  time: string
 ) => {
   return fetchData<FlashCardValidationResponse>(`${BASE_URL}/flashcardanswers/validate`, 'POST', {
     flashcardId,
     userAnswer,
     time,
-    sessionId,
   });
 };
 

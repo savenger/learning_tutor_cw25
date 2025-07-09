@@ -47,9 +47,7 @@ export interface FlashCardSession {
 }
 
 export interface FlashCardValidationResponse extends FlashCardAnswer {
-  sessionId: string;
   isCorrect: boolean;
+  evaluationType: 'success' | 'hint';
   correctAnswer?: string; // Only shown when answer is correct
-  messages: ChatMessage[];
-  isSessionCompleted: boolean;
 }

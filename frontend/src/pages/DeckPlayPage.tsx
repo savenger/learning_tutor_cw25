@@ -20,7 +20,6 @@ const DeckPlayPage: React.FC = () => {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [isValidating, setIsValidating] = useState<boolean>(false);
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
-  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [noMoreCards, setNoMoreCards] = useState<boolean>(false);
   const [cardProgress, setCardProgress] = useState<{ unseenCount: number; totalCount: number; seenCount: number } | null>(null);
 
@@ -82,7 +81,6 @@ const DeckPlayPage: React.FC = () => {
     setChatMessages([]);
     setIsValidating(false);
     setIsCompleted(false);
-    setCurrentSessionId(null);
   };
 
   const handleNextCard = async () => {
@@ -98,17 +96,32 @@ const DeckPlayPage: React.FC = () => {
     
     const currentTime = new Date().toISOString();
     
+    // Add user message to chat
+    const userMessage: ChatMessage = {
+      role: 'user',
+      content: message,
+      timestamp: currentTime
+    };
+    
+    setChatMessages(prev => [...prev, userMessage]);
+    
     const { data, error } = await validateFlashcardAnswer(
       currentCard.id,
       message,
-      currentTime,
-      currentSessionId || undefined
+      currentTime
     );
 
     if (data) {
-      setChatMessages(data.messages);
-      setCurrentSessionId(data.sessionId);
-      setIsCompleted(data.isSessionCompleted);
+      // Add assistant response to chat
+      const assistantMessage: ChatMessage = {
+        role: 'assistant',
+        content: data.feedback || '',
+        timestamp: new Date().toISOString(),
+        isCorrect: data.isCorrect
+      };
+      
+      setChatMessages(prev => [...prev, assistantMessage]);
+      setIsCompleted(data.isCorrect);
     } else if (error) {
       setError(error);
     }

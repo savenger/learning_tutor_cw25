@@ -36,6 +36,12 @@ router.post('/validate', async (req, res) => {
       message: flashcard.question
     });
 
+    conversationHistory.push({
+      role: 'user',
+      type: 'solution',
+      message: flashcard.answer
+    });
+
     // Add previous user answers and assistant feedback
     previousAnswers.forEach(answer => {
       conversationMessages.push({
