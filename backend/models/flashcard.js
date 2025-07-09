@@ -22,6 +22,16 @@ module.exports = (sequelize, DataTypes) => {
         key: 'id',
       },
     },
+    seen: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    score: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: null,
+    },
   }, {
     tableName: 'Flashcards',
     timestamps: true,

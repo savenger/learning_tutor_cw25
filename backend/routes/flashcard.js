@@ -88,4 +88,22 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// POST reset all flashcards' seen status to false
+router.post('/reset-seen', async (req, res) => {
+  try {
+    const [affectedRows] = await Flashcard.update(
+      { seen: false },
+      { where: {} } // Update all flashcards
+    );
+
+    res.status(200).json({ 
+      message: 'All flashcards reset successfully!',
+      affectedRows 
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json(err);
+  }
+});
+
 module.exports = router;

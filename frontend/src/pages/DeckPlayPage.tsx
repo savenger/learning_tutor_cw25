@@ -1,25 +1,28 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { FaArrowRight, FaForward, FaRedo, FaSyncAlt, FaTimesCircle } from 'react-icons/fa';
 import { useParams } from 'react-router-dom';
-import Container from '../components/Container';
-import FlashcardDisplay from '../components/FlashcardDisplay';
-import FlashcardChat from '../components/FlashcardChat';
+import { getDeckById, getNextUnseenCard, getUnseenCardCount, resetDeckCards, skipFlashcard, validateFlashcardAnswer } from '../api/api';
 import Button from '../components/Button';
-import { Deck, Flashcard, ChatMessage } from '../types';
-import { getDeckById, validateFlashcardAnswer, skipFlashcard } from '../api/api';
-import { FaArrowRight, FaRedo, FaTimesCircle, FaForward, FaCheck } from 'react-icons/fa';
+import Container from '../components/Container';
+import FlashcardChat from '../components/FlashcardChat';
+import FlashcardDisplay from '../components/FlashcardDisplay';
+import { ChatMessage, Deck, Flashcard } from '../types';
 
 const DeckPlayPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const deckId = Number(id);
 
   const [deck, setDeck] = useState<Deck | null>(null);
+  const [currentCard, setCurrentCard] = useState<Flashcard | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [loadingNextCard, setLoadingNextCard] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [currentCardIndex, setCurrentCardIndex] = useState<number>(0);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [isValidating, setIsValidating] = useState<boolean>(false);
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [noMoreCards, setNoMoreCards] = useState<boolean>(false);
+  const [cardProgress, setCardProgress] = useState<{ unseenCount: number; totalCount: number; seenCount: number } | null>(null);
 
   const fetchDeck = useCallback(async () => {
     setLoading(true);
@@ -33,9 +36,47 @@ const DeckPlayPage: React.FC = () => {
     setLoading(false);
   }, [deckId]);
 
+  const fetchCardProgress = useCallback(async () => {
+    const { data, error } = await getUnseenCardCount(deckId);
+    if (data) {
+      setCardProgress(data);
+    } else if (error) {
+      console.error('Failed to fetch card progress:', error);
+    }
+  }, [deckId]);
+
+  const fetchNextCard = useCallback(async () => {
+    setLoadingNextCard(true);
+    setError(null);
+    const { data, error } = await getNextUnseenCard(deckId);
+    if (data) {
+      setCurrentCard(data);
+      setNoMoreCards(false);
+      // Update progress after getting a card
+      await fetchCardProgress();
+    } else if (error) {
+      if (error.includes('No unseen cards remaining')) {
+        setNoMoreCards(true);
+        setCurrentCard(null);
+        // Update progress when no more cards
+        await fetchCardProgress();
+      } else {
+        setError(error);
+      }
+    }
+    setLoadingNextCard(false);
+  }, [deckId, fetchCardProgress]);
+
   useEffect(() => {
     fetchDeck();
   }, [fetchDeck]);
+
+  useEffect(() => {
+    if (deck) {
+      fetchCardProgress();
+      fetchNextCard();
+    }
+  }, [deck, fetchNextCard, fetchCardProgress]);
 
   const resetCardState = () => {
     setChatMessages([]);
@@ -44,32 +85,21 @@ const DeckPlayPage: React.FC = () => {
     setCurrentSessionId(null);
   };
 
-  const handleNextCard = () => {
-    if (deck && deck.Flashcards) {
-      const nextIndex = (currentCardIndex + 1) % deck.Flashcards.length;
-      
-      // If we're at the last card and trying to go to next, show completion
-      if (currentCardIndex === deck.Flashcards.length - 1) {
-        //alert('Deck completed! You can now return to the deck list.');
-        //window.history.back();
-      } else {
-        setCurrentCardIndex(nextIndex);
-        resetCardState();
-      }
-    }
+  const handleNextCard = async () => {
+    resetCardState();
+    await fetchNextCard();
   };
 
   const handleSendMessage = async (message: string) => {
-    if (!deck || !deck.Flashcards || deck.Flashcards.length === 0) return;
+    if (!currentCard) return;
 
-    const currentFlashcard = deck.Flashcards[currentCardIndex];
     setIsValidating(true);
     setError(null);
     
     const currentTime = new Date().toISOString();
     
     const { data, error } = await validateFlashcardAnswer(
-      currentFlashcard.id,
+      currentCard.id,
       message,
       currentTime,
       currentSessionId || undefined
@@ -91,26 +121,36 @@ const DeckPlayPage: React.FC = () => {
   };
 
   const handleSkipCard = async () => {
-    if (!deck || !deck.Flashcards || deck.Flashcards.length === 0) return;
+    if (!currentCard) return;
 
-    const currentFlashcard = deck.Flashcards[currentCardIndex];
     setError(null);
     
     const currentTime = new Date().toISOString();
     
-    const { error } = await skipFlashcard(currentFlashcard.id, currentTime);
+    const { error } = await skipFlashcard(currentCard.id, currentTime);
 
     if (error) {
       setError(error);
     }
     
-    // If this is the last card, show completion message
-    if (currentCardIndex === deck.Flashcards.length - 1) {
-      //alert('Deck completed! You can now return to the deck list.');
-      //window.history.back();
+    // Move to next card
+    await handleNextCard();
+  };
+
+  const handleResetDeck = async () => {
+    setError(null);
+    setLoadingNextCard(true);
+    
+    const { error } = await resetDeckCards(deckId);
+    
+    if (error) {
+      setError(error);
+      setLoadingNextCard(false);
     } else {
-      // Move to next card if not the last card
-      handleNextCard();
+      // Reset state and fetch first card
+      setNoMoreCards(false);
+      resetCardState();
+      await fetchNextCard();
     }
   };
 
@@ -133,12 +173,12 @@ const DeckPlayPage: React.FC = () => {
     );
   }
 
-  if (!deck || !deck.Flashcards || deck.Flashcards.length === 0) {
+  if (!deck) {
     return (
       <Container className="text-center">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">Deck Not Found or Empty</h1>
+        <h1 className="text-3xl font-bold text-gray-800 mb-4">Deck Not Found</h1>
         <p className="text-gray-600 text-lg">
-          This deck might not exist or does not contain any flashcards yet.
+          This deck might not exist.
         </p>
         <Button onClick={() => window.history.back()} className="mt-6">
           Go Back to Decks
@@ -147,39 +187,88 @@ const DeckPlayPage: React.FC = () => {
     );
   }
 
-  const currentFlashcard: Flashcard = deck.Flashcards[currentCardIndex];
-  const totalCards = deck.Flashcards.length;
+  if (noMoreCards) {
+    return (
+      <Container className="text-center">
+        <h1 className="text-3xl font-bold text-gray-800 mb-4">Deck Completed!</h1>
+        <p className="text-gray-600 text-lg mb-6">
+          You've completed all cards in "{deck.name}". Great job!
+        </p>
+        {cardProgress && (
+          <p className="text-gray-500 text-sm mb-6">
+            You've seen {cardProgress.totalCount} out of {cardProgress.totalCount} cards
+          </p>
+        )}
+        <div className="flex justify-center space-x-4">
+          <Button onClick={handleResetDeck} className="flex items-center">
+            <FaSyncAlt className="mr-2" /> Play Again
+          </Button>
+          <Button onClick={() => window.history.back()} variant="secondary">
+            Go Back to Decks
+          </Button>
+        </div>
+      </Container>
+    );
+  }
+
+  if (loadingNextCard) {
+    return (
+      <Container className="text-center">
+        <p className="text-gray-600 text-lg">Loading next card...</p>
+      </Container>
+    );
+  }
+
+  if (!currentCard) {
+    return (
+      <Container className="text-center">
+        <h1 className="text-3xl font-bold text-gray-800 mb-4">No Card Available</h1>
+        <p className="text-gray-600 text-lg">
+          Unable to load the next card.
+        </p>
+        <Button onClick={fetchNextCard} className="mt-4">
+          Try Again
+        </Button>
+      </Container>
+    );
+  }
 
   return (
     <Container>
-      <h1 className="text-4xl font-bold text-gray-800 mb-6 text-center">
-        Playing: {deck.name}
-      </h1>
-      <p className="text-gray-600 text-center mb-8">
-        Card {currentCardIndex + 1} of {totalCards}
-      </p>
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-4xl font-bold text-gray-800">
+            Playing: {deck.name}
+          </h1>
+          {cardProgress && (
+            <p className="text-gray-600 mt-2">
+              {cardProgress.unseenCount} cards remaining ({cardProgress.seenCount} of {cardProgress.totalCount} completed)
+            </p>
+          )}
+        </div>
+        <Button
+          onClick={handleResetDeck}
+          variant="secondary"
+          className="flex items-center"
+        >
+          <FaSyncAlt className="mr-2" /> Reset Deck
+        </Button>
+      </div>
 
       <div className="max-w-4xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Flashcard Display */}
           <div className="bg-white rounded-lg shadow-xl p-8">
-            <FlashcardDisplay flashcard={currentFlashcard} />
+            <FlashcardDisplay flashcard={currentCard} />
             
             <div className="flex justify-center space-x-4 mt-8">
               <Button
                 variant="secondary"
                 onClick={handleSkipCard}
                 className="flex items-center"
+                disabled={loadingNextCard}
               >
-                {currentCardIndex === totalCards - 1 ? (
-                  <>
-                    <FaCheck className="mr-2" /> Finish
-                  </>
-                ) : (
-                  <>
-                    <FaForward className="mr-2" /> Skip
-                  </>
-                )}
+                <FaForward className="mr-2" /> Skip
               </Button>
             </div>
           </div>
@@ -210,6 +299,7 @@ const DeckPlayPage: React.FC = () => {
                   onClick={handleNextCard}
                   variant="primary"
                   className="flex items-center"
+                  disabled={loadingNextCard}
                 >
                   Next Card <FaArrowRight className="ml-2" />
                 </Button>
