@@ -183,6 +183,9 @@ paths:
                     - role: assistant
                       type: question
                       message: What is the capital of France?
+                    - role: assistant
+                      type: solution
+                      message: The correct answer is Paris.
                     - role: user
                       type: answer
                       message: Kiel
@@ -203,11 +206,13 @@ paths:
                 success:
                   summary: Success response
                   value:
+                    role: assistant
                     type: success
                     message: Correct!
                 hint:
                   summary: Hint response
                   value:
+                    role: assistant
                     type: hint
                     message: Think of the city known as the 'City of Light' and famous for the Eiffel Tower.
         '400':
@@ -235,6 +240,9 @@ paths:
                     - role: assistant
                       type: question
                       message: What is the capital of France?
+                    - role: assistant
+                      type: solution
+                      message: The correct answer is Paris.
                     - role: user
                       type: answer
                       message: Kiel
@@ -363,8 +371,8 @@ components:
           description: Role identifier for the message sender. Assistant always starts with a question, then alternates with user responses.
         type:
           type: string
-          enum: [question, answer, hint, success]
-          description: Type of message content. Assistant messages can be 'question', 'hint', or 'success'. User messages are always 'answer'.
+          enum: [question, solution, answer, hint, success]
+          description: Type of message content. Assistant messages can be 'question', 'hint', 'success', or 'solution'. User messages are always 'answer'.
         message:
           type: string
           description: The message content
@@ -372,9 +380,15 @@ components:
     EvaluationResult:
       type: object
       required:
+        - role
         - type
         - message
       properties:
+        role:
+          type: string
+          enum: [assistant]
+          description: Role identifier for the evaluation result
+          example: assistant
         type:
           type: string
           enum: [success, hint]
