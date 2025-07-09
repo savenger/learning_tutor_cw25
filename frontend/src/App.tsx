@@ -5,6 +5,7 @@ import HomePage from './pages/HomePage';
 import DeckListPage from './pages/DeckListPage';
 import DeckPlayPage from './pages/DeckPlayPage';
 import DocumentImporterPage from './pages/DocumentImporterPage';
+import FeedbackRecommendationPage from './pages/FeedbackRecommendationPage';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route path="/decks" element={<DeckListPage />} />
           <Route path="/decks/:id/play" element={<DeckPlayPage />} />
           <Route path="/import" element={<DocumentImporterPage />} />
+          <Route path="/feedback" element={<FeedbackRecommendationPage />} />
         </Routes>
       </main>
     </div>

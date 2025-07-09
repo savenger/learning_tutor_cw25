@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FaHome, FaBook, FaFileUpload } from 'react-icons/fa';
+import { FaHome, FaBook, FaFileUpload, FaLightbulb } from 'react-icons/fa';
 
 const Navbar: React.FC = () => {
   return (
@@ -32,6 +32,14 @@ const Navbar: React.FC = () => {
               className="text-white hover:text-blue-200 transition duration-300 flex items-center text-lg"
             >
               <FaFileUpload className="mr-2" /> Import Document
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/feedback"
+              className="text-white hover:text-blue-200 transition duration-300 flex items-center text-lg"
+            >
+              <FaLightbulb className="mr-2" /> Feedback
             </Link>
           </li>
         </ul>
