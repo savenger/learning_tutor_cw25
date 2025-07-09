@@ -58,9 +58,6 @@ router.get('/:id/next-card', async (req, res) => {
       return;
     }
 
-    // Mark the card as seen
-    await unseenCard.update({ seen: true });
-
     // Return the card with deck information
     const cardWithDeck = await Flashcard.findByPk(unseenCard.id, {
       include: [{ model: Deck, as: 'Deck' }],
