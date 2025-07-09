@@ -1,0 +1,271 @@
+openapi: 3.0.3
+info:
+  title: Flash Card Learning Platform API
+  description: API for evaluating and storing flash card learning sessions
+  version: 1.0.0
+  contact:
+    name: Flash Card Learning Platform
+servers:
+  - url: http://localhost:3000
+    description: Development server
+  - url: https://api.flashcard-platform.com
+    description: Production server
+
+paths:
+  /evaluate:
+    post:
+      summary: Evaluate user's answer against the correct answer
+      description: Evaluates the user's answer and returns either a success message or a hint for improvement
+      operationId: evaluate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/History'
+            examples:
+              success_case:
+                summary: Success case example
+                description: Example where user eventually gets the correct answer
+                value:
+                  messages:
+                    - role: assistant
+                      content:
+                        type: question
+                        message: What is the capital of France?
+                    - role: user
+                      content:
+                        type: answer
+                        message: Kiel
+                    - role: assistant
+                      content:
+                        type: hint
+                        message: Think of the city known as the 'City of Light' and famous for the Eiffel Tower.
+                    - role: user
+                      content:
+                        type: answer
+                        message: Paris
+                    - role: assistant
+                      content:
+                        type: success
+                        message: Correct!
+              skip_case:
+                summary: Skip case example
+                description: Example where user skips the card
+                value:
+                  messages:
+                    - role: assistant
+                      content:
+                        type: question
+                        message: What is the capital of France?
+                    - role: user
+                      content:
+                        type: answer
+                        message: Kiel
+                    - role: assistant
+                      content:
+                        type: hint
+                        message: Think of the city known as the 'City of Light' and famous for the Eiffel Tower.
+                    - role: user
+                      content:
+                        type: skip
+      responses:
+        '200':
+          description: Evaluation result
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Success'
+                  - $ref: '#/components/schemas/Hint'
+              examples:
+                success:
+                  summary: Success response
+                  value:
+                    type: success
+                    message: Correct!
+                hint:
+                  summary: Hint response
+                  value:
+                    type: hint
+                    message: Think of the city known as the 'City of Light' and famous for the Eiffel Tower.
+        '400':
+          description: Bad request - invalid history format
+        '500':
+          description: Internal server error
+
+  /store:
+    post:
+      summary: Store the complete learning session history
+      description: Stores the entire conversation history for the learning session
+      operationId: store
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/History'
+            examples:
+              completed_session:
+                summary: Completed learning session
+                description: Example of a completed learning session
+                value:
+                  messages:
+                    - role: assistant
+                      content:
+                        type: question
+                        message: What is the capital of France?
+                    - role: user
+                      content:
+                        type: answer
+                        message: Kiel
+                    - role: assistant
+                      content:
+                        type: hint
+                        message: Think of the city known as the 'City of Light' and famous for the Eiffel Tower.
+                    - role: user
+                      content:
+                        type: answer
+                        message: Paris
+                    - role: assistant
+                      content:
+                        type: success
+                        message: Correct!
+      responses:
+        '200':
+          description: History stored successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "History stored successfully"
+                  sessionId:
+                    type: string
+                    format: uuid
+                    example: "123e4567-e89b-12d3-a456-426614174000"
+        '400':
+          description: Bad request - invalid history format
+        '500':
+          description: Internal server error
+
+components:
+  schemas:
+    History:
+      type: object
+      required:
+        - messages
+      properties:
+        messages:
+          type: array
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/AssistantMessage'
+              - $ref: '#/components/schemas/UserMessage'
+          description: Array of conversation messages
+
+    AssistantMessage:
+      type: object
+      required:
+        - role
+        - content
+      properties:
+        role:
+          type: string
+          enum: [assistant]
+          description: Role identifier for assistant messages
+        content:
+          oneOf:
+            - $ref: '#/components/schemas/Question'
+            - $ref: '#/components/schemas/EvaluationResult'
+          description: Content of the assistant message
+
+    UserMessage:
+      type: object
+      required:
+        - role
+        - content
+      properties:
+        role:
+          type: string
+          enum: [user]
+          description: Role identifier for user messages
+        content:
+          oneOf:
+            - $ref: '#/components/schemas/UserSkipsCard'
+            - $ref: '#/components/schemas/UserSendsAnswer'
+          description: Content of the user message
+
+    Question:
+      type: object
+      required:
+        - type
+        - message
+      properties:
+        type:
+          type: string
+          enum: [question]
+          description: Type identifier for question content
+        message:
+          type: string
+          description: The question text presented to the user
+
+    EvaluationResult:
+      oneOf:
+        - $ref: '#/components/schemas/Success'
+        - $ref: '#/components/schemas/Hint'
+      description: Result of answer evaluation
+
+    Success:
+      type: object
+      required:
+        - type
+        - message
+      properties:
+        type:
+          type: string
+          enum: [success]
+          description: Type identifier for successful evaluation
+        message:
+          type: string
+          description: Feedback message for correct answer
+
+    Hint:
+      type: object
+      required:
+        - type
+        - message
+      properties:
+        type:
+          type: string
+          enum: [hint]
+          description: Type identifier for hint evaluation
+        message:
+          type: string
+          description: Hint message to help user find correct answer
+
+    UserSkipsCard:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum: [skip]
+          description: Type identifier for user skipping the card
+
+    UserSendsAnswer:
+      type: object
+      required:
+        - type
+        - message
+      properties:
+        type:
+          type: string
+          enum: [answer]
+          description: Type identifier for user answer
+        message:
+          type: string
+          description: The user's answer text
