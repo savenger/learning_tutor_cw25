@@ -4,3 +4,4 @@ node_modules
 .env
 .venv
 Dockerfile.m1chip
+Nockerfile.m1chip
