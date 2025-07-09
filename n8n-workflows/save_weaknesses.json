@@ -1,0 +1,403 @@
+{
+  "name": "save_weakness",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "weakness",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -64,
+        0
+      ],
+      "id": "aa20bc22-f682-440c-9c4c-44ffedbca184",
+      "name": "Webhook",
+      "webhookId": "f1d5f642-ae61-49d1-b5ee-34ff2bee46a9"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        800,
+        240
+      ],
+      "id": "0fa8efa0-34e6-41f1-b2ab-f8e0c9762660",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "b8WNbDFYnfzq5Cic",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sseEndpoint": "http://graphiti-mcp:8000/sse",
+        "include": "selected",
+        "includeTools": [
+          "add_memory"
+        ]
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1,
+      "position": [
+        1104,
+        240
+      ],
+      "id": "59720ab0-e858-4b38-a451-f2a2bcb6bd59",
+      "name": "MCP Client",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        944,
+        176
+      ],
+      "id": "ccd18226-4089-4d99-847b-33a66d23f59f",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "b8WNbDFYnfzq5Cic",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "You are an assistant that identifies missing or unclear knowledge from a discussion on a specific topic.\nYour task is to analyze the chat and extract what is not known, uncertain, or potentially misunderstood, phrased as explicit knowledge gaps.\n\n\nOnly include genuine gaps in understanding or missing facts. \nDo not list information that is already clearly stated or generally known.\nRespond with short sentences including the gaps and also the context.\n\nExample Input:\n{\"chat\": [\"question\": \"What does a bike consist of?\", \"answer\": \"It has two wheels and a saddle\", \"question\": \"Great, anything else?\" \"answer\": \"A handlebar and a frame\", \"question\": \"Do you know what types of bicycles are there and what they are used for?\", \"answer\": \"city bikes for sustainable mobility and racing bikes for fun\"], \"solution\": \"Bicycles are environmentally friendly means of transportation powered by muscle strength. They typically consist of a frame, two wheels, handlebars, a saddle, and pedals. There are various types of bicycles – including city bikes, mountain bikes, racing bikes, trekking bikes, and e-bikes. They differ in design and intended use.\nBicycles are not only practical for everyday use and commuting to work but also promote health by strengthening the cardiovascular system and muscles. In many cities, they are becoming increasingly important for sustainable mobility.\"}\n\nExample Output:\nPedals are not mentioned as a bicycle component. Types of bikes like mountain bikes, trekking bikes, and e-bikes are missing. The health benefits of cycling (e.g., cardiovascular and muscular improvements) are not mentioned. The role of bikes in everyday commuting is not covered. No mention of bikes being powered by muscle strength. Bicycles' increasing importance in urban sustainable mobility is only partly addressed.\nThe system asks what a bike consists of, and the answer includes two wheels, a saddle, handlebars, and a frame. When asked if there's anything else, no additional parts are mentioned. The system then asks about types of bicycles and their uses, and the response mentions city bikes for sustainable mobility and racing bikes for fun.\n",
+              "role": "system"
+            },
+            {
+              "content": "={{ $json.body.messages }} \n{{ $json.body.solution }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        464,
+        0
+      ],
+      "id": "511a6466-78e0-4a07-972c-f1d634b0b622",
+      "name": "Knowledge gap identification",
+      "credentials": {
+        "openAiApi": {
+          "id": "b8WNbDFYnfzq5Cic",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7d69cf14-0d18-4869-ab65-d330460eedda",
+              "name": "flashcard_id",
+              "value": "={{ $json.body.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        0
+      ],
+      "id": "ddf123ca-0cf7-483f-8dce-24e8b33fc762",
+      "name": "Extract id"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.content }}",
+        "options": {
+          "systemMessage": "Store the information about all of the users misconceptions and knowledge gaps in a knowledge graph that represents the users misconceptions. Always set the episode_body as an unstructured text. For each gap use a separate function call. "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        912,
+        0
+      ],
+      "id": "d04b86c0-d9b8-4958-a483-5e315855ee7b",
+      "name": "Knowledge gap storage"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "Flashcards",
+          "mode": "list",
+          "cachedResultName": "Flashcards"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "seen": true,
+            "id": "={{ $('Extract id').item.json.flashcard_id }}",
+            "score": 0
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "question",
+              "displayName": "question",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "answer",
+              "displayName": "answer",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "deckId",
+              "displayName": "deckId",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "seen",
+              "displayName": "seen",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "score",
+              "displayName": "score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "createdAt",
+              "displayName": "createdAt",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updatedAt",
+              "displayName": "updatedAt",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1440,
+        0
+      ],
+      "id": "251c61c4-2e4f-46d9-a22a-a86b164330c1",
+      "name": "Update rows in a table",
+      "credentials": {
+        "postgres": {
+          "id": "CExKclIpIoh56eyx",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "body": {
+            "id": "1",
+            "messages": [
+              {
+                "question": "I’ve heard of Pandas in Python. Is it about animals?",
+                "answer": "No, it’s a library used for data analysis."
+              },
+              {
+                "question": "Oh, what can you do with it?",
+                "answer": "You can load, manipulate, and analyze tabular data like spreadsheets."
+              },
+              {
+                "question": "Sounds cool. Is it hard to use?",
+                "answer": "Not really. It’s designed to be intuitive. You mostly work with DataFrames."
+              },
+              {
+                "question": "What’s a DataFrame?",
+                "answer": "It’s like a table with rows and columns. Similar to an Excel sheet."
+              }
+            ],
+            "solution": "Pandas is a powerful open-source library in Python used for data manipulation and analysis. Its core data structures are Series (for one-dimensional data) and DataFrame (for two-dimensional tabular data). Pandas allows users to easily read data from various sources like CSV files or Excel spreadsheets, clean and transform it, and perform statistical analyses. Even users with little programming experience can use Pandas effectively thanks to its clear syntax and documentation. It’s widely used in data science, finance, and research for tasks like filtering, grouping, aggregating, and visualizing data."
+          }
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Knowledge gap storage",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "Knowledge gap storage",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Knowledge gap storage",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Knowledge gap identification": {
+      "main": [
+        [
+          {
+            "node": "Knowledge gap storage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract id": {
+      "main": [
+        [
+          {
+            "node": "Knowledge gap identification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Knowledge gap storage": {
+      "main": [
+        [
+          {
+            "node": "Update rows in a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9d9ab0d8-ab0b-4253-ad91-899d11f5b718",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "427d115aa44fde43cc4dfa6d27acc9d6e385112c0d4fc9eb1827fb04ee64f691"
+  },
+  "id": "sfP7HgNQmEC9Wl4x",
+  "tags": []
+}
