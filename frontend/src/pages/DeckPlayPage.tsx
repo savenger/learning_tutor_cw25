@@ -5,8 +5,8 @@ import FlashcardDisplay from '../components/FlashcardDisplay';
 import FlashcardChat from '../components/FlashcardChat';
 import Button from '../components/Button';
 import { Deck, Flashcard, ChatMessage } from '../types';
-import { getDeckById, validateFlashcardAnswer } from '../api/api';
-import { FaArrowLeft, FaArrowRight, FaRedo, FaTimesCircle } from 'react-icons/fa';
+import { getDeckById, validateFlashcardAnswer, skipFlashcard } from '../api/api';
+import { FaArrowRight, FaRedo, FaTimesCircle, FaForward, FaCheck } from 'react-icons/fa';
 
 const DeckPlayPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -46,17 +46,16 @@ const DeckPlayPage: React.FC = () => {
 
   const handleNextCard = () => {
     if (deck && deck.Flashcards) {
-      setCurrentCardIndex((prevIndex) => (prevIndex + 1) % deck.Flashcards!.length);
-      resetCardState();
-    }
-  };
-
-  const handlePrevCard = () => {
-    if (deck && deck.Flashcards) {
-      setCurrentCardIndex((prevIndex) =>
-        prevIndex === 0 ? deck.Flashcards!.length - 1 : prevIndex - 1
-      );
-      resetCardState();
+      const nextIndex = (currentCardIndex + 1) % deck.Flashcards.length;
+      
+      // If we're at the last card and trying to go to next, show completion
+      if (currentCardIndex === deck.Flashcards.length - 1) {
+        //alert('Deck completed! You can now return to the deck list.');
+        //window.history.back();
+      } else {
+        setCurrentCardIndex(nextIndex);
+        resetCardState();
+      }
     }
   };
 
@@ -89,6 +88,30 @@ const DeckPlayPage: React.FC = () => {
 
   const handleTryAgain = () => {
     resetCardState();
+  };
+
+  const handleSkipCard = async () => {
+    if (!deck || !deck.Flashcards || deck.Flashcards.length === 0) return;
+
+    const currentFlashcard = deck.Flashcards[currentCardIndex];
+    setError(null);
+    
+    const currentTime = new Date().toISOString();
+    
+    const { error } = await skipFlashcard(currentFlashcard.id, currentTime);
+
+    if (error) {
+      setError(error);
+    }
+    
+    // If this is the last card, show completion message
+    if (currentCardIndex === deck.Flashcards.length - 1) {
+      //alert('Deck completed! You can now return to the deck list.');
+      //window.history.back();
+    } else {
+      // Move to next card if not the last card
+      handleNextCard();
+    }
   };
 
   if (loading) {
@@ -145,19 +168,18 @@ const DeckPlayPage: React.FC = () => {
             <div className="flex justify-center space-x-4 mt-8">
               <Button
                 variant="secondary"
-                onClick={handlePrevCard}
-                disabled={totalCards <= 1}
+                onClick={handleSkipCard}
                 className="flex items-center"
               >
-                <FaArrowLeft className="mr-2" /> Previous
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={handleNextCard}
-                disabled={totalCards <= 1}
-                className="flex items-center"
-              >
-                Next <FaArrowRight className="ml-2" />
+                {currentCardIndex === totalCards - 1 ? (
+                  <>
+                    <FaCheck className="mr-2" /> Finish
+                  </>
+                ) : (
+                  <>
+                    <FaForward className="mr-2" /> Skip
+                  </>
+                )}
               </Button>
             </div>
           </div>

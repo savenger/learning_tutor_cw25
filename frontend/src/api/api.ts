@@ -125,6 +125,16 @@ export const recordFlashcardAnswer = async (
   });
 };
 
+export const skipFlashcard = async (
+  flashcardId: number,
+  time: string
+) => {
+  return fetchData<{ message: string; flashcardId: number; time: string; timestamp: string }>(`${BASE_URL}/flashcardanswers/skip`, 'POST', {
+    flashcardId,
+    time,
+  });
+};
+
 // Document Processing
 export const processDocument = async (file?: File) => {
   // This endpoint is a placeholder. In a real scenario, it would likely accept a file upload.

@@ -152,6 +152,38 @@ router.get('/', async (req, res) => {
     console.error(err);
     res.status(500).json(err);
   }
+  });
+
+// POST skip a flashcard
+router.post('/skip', async (req, res) => {
+  try {
+    const { flashcardId, time } = req.body;
+    
+    // Validate required fields
+    if (!flashcardId || !time) {
+      return res.status(400).json({ 
+        error: 'Missing required fields: flashcardId and time are required' 
+      });
+    }
+
+    // Get the flashcard to ensure it exists
+    const flashcard = await Flashcard.findByPk(flashcardId);
+    if (!flashcard) {
+      return res.status(404).json({ error: 'Flashcard not found' });
+    }
+
+    // For now, we'll just return a success response
+    // In the future, this could track skipped cards for analytics
+    res.status(200).json({
+      message: 'Flashcard skipped successfully',
+      flashcardId,
+      time,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ error: err.message || 'Failed to skip flashcard' });
+  }
 });
 
 module.exports = router;
