@@ -1,5 +1,5 @@
 {
-  "name": "My workflow",
+  "name": "Save Weakness",
   "nodes": [
     {
       "parameters": {
@@ -10,10 +10,10 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        -64,
-        0
+        -1280,
+        -180
       ],
-      "id": "aa20bc22-f682-440c-9c4c-44ffedbca184",
+      "id": "6e61d4f3-7bf1-4152-93b4-85f507cbcdb3",
       "name": "Webhook",
       "webhookId": "f1d5f642-ae61-49d1-b5ee-34ff2bee46a9"
     },
@@ -29,14 +29,14 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.2,
       "position": [
-        800,
-        240
+        -420,
+        60
       ],
-      "id": "0fa8efa0-34e6-41f1-b2ab-f8e0c9762660",
+      "id": "f3791eab-0c27-4337-ae38-56aa7701a3e4",
       "name": "OpenAI Chat Model",
       "credentials": {
         "openAiApi": {
-          "id": "b8WNbDFYnfzq5Cic",
+          "id": "fPQeumCq99mcw6ry",
           "name": "OpenAi account"
         }
       }
@@ -52,37 +52,12 @@
       "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
       "typeVersion": 1,
       "position": [
-        1040,
-        256
+        -180,
+        80
       ],
-      "id": "59720ab0-e858-4b38-a451-f2a2bcb6bd59",
+      "id": "f2647dfb-d141-4700-89b2-9821be3b65f6",
       "name": "MCP Client",
       "retryOnFail": true
-    },
-    {
-      "parameters": {
-        "model": {
-          "__rl": true,
-          "value": "gpt-4o-mini",
-          "mode": "list",
-          "cachedResultName": "gpt-4o-mini"
-        },
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
-      "typeVersion": 1.2,
-      "position": [
-        896,
-        208
-      ],
-      "id": "ccd18226-4089-4d99-847b-33a66d23f59f",
-      "name": "OpenAI Chat Model1",
-      "credentials": {
-        "openAiApi": {
-          "id": "b8WNbDFYnfzq5Cic",
-          "name": "OpenAi account"
-        }
-      }
     },
     {
       "parameters": {
@@ -108,14 +83,14 @@
       "type": "@n8n/n8n-nodes-langchain.openAi",
       "typeVersion": 1.8,
       "position": [
-        464,
-        0
+        -760,
+        -180
       ],
-      "id": "511a6466-78e0-4a07-972c-f1d634b0b622",
+      "id": "6976d08f-edfa-42c2-bf8b-f5eec26fbe70",
       "name": "Knowledge gap identification",
       "credentials": {
         "openAiApi": {
-          "id": "b8WNbDFYnfzq5Cic",
+          "id": "fPQeumCq99mcw6ry",
           "name": "OpenAi account"
         }
       }
@@ -137,10 +112,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        864,
-        496
+        -360,
+        320
       ],
-      "id": "ddf123ca-0cf7-483f-8dce-24e8b33fc762",
+      "id": "5dc7107d-aab1-41ab-87d9-dba74d39ed3c",
       "name": "Extract id"
     },
     {
@@ -154,10 +129,10 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 2,
       "position": [
-        816,
-        0
+        -400,
+        -180
       ],
-      "id": "d04b86c0-d9b8-4958-a483-5e315855ee7b",
+      "id": "843d56c2-85ea-458b-9d5c-5a8941bb14d7",
       "name": "Knowledge gap storage"
     },
     {
@@ -177,7 +152,9 @@
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "id": "={{ $('Extract id').item.json.flashcard_id }}"
+            "id": "={{ $('Extract id').item.json.flashcard_id }}",
+            "seen": true,
+            "score": "={{ $json.data[0].message.content.score }}"
           },
           "matchingColumns": [
             "id"
@@ -231,7 +208,7 @@
               "display": true,
               "type": "boolean",
               "canBeUsedToMatch": true,
-              "removed": true
+              "removed": false
             },
             {
               "id": "score",
@@ -241,7 +218,7 @@
               "display": true,
               "type": "number",
               "canBeUsedToMatch": true,
-              "removed": true
+              "removed": false
             },
             {
               "id": "createdAt",
@@ -272,34 +249,29 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        1760,
-        -48
+        840,
+        -160
       ],
-      "id": "251c61c4-2e4f-46d9-a22a-a86b164330c1",
+      "id": "06a96ca3-47a9-4f66-9a3d-aceaa2e257a3",
       "name": "Update rows in a table",
       "credentials": {
         "postgres": {
-          "id": "CExKclIpIoh56eyx",
-          "name": "Postgres account"
+          "id": "IWgQcsY8lcgKgGmd",
+          "name": "Postgres account 2"
         }
       }
     },
     {
       "parameters": {
-        "mode": "combine",
-        "combineBy": "combineByPosition",
-        "numberInputs": 3,
-        "options": {
-          "includeUnpaired": true
-        }
+        "numberInputs": 3
       },
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        1504,
-        32
+        300,
+        -160
       ],
-      "id": "5793d407-3ef0-483f-aa40-a7afdd6a125d",
+      "id": "72bd5775-d2f6-46dc-ac65-70db34e4bd40",
       "name": "Merge",
       "alwaysOutputData": false
     },
@@ -314,7 +286,7 @@
         "messages": {
           "values": [
             {
-              "content": "Grade the answers of the user in school nodes (1-6 with 1 being the best) regarding the mentioning of knowledge compared to the perfect solution.\n\nALWAYS OUTPUT A JSON LIKE THIS {\"percentage\": FLOAT}",
+              "content": "Grade the answers of the user in school nodes (1-6 with 1 being the best) regarding the mentioning of knowledge compared to the perfect solution.\n\nALWAYS OUTPUT A JSON LIKE THIS {\"score\": INT",
               "role": "system"
             },
             {
@@ -328,17 +300,31 @@
       "type": "@n8n/n8n-nodes-langchain.openAi",
       "typeVersion": 1.8,
       "position": [
-        464,
-        -240
+        -760,
+        -420
       ],
-      "id": "3678b99a-680d-445e-b715-c28323943576",
+      "id": "1105719d-ab90-497d-b786-fd61e2c8921d",
       "name": "Grade answers",
       "credentials": {
         "openAiApi": {
-          "id": "b8WNbDFYnfzq5Cic",
+          "id": "fPQeumCq99mcw6ry",
           "name": "OpenAi account"
         }
       }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        540,
+        -160
+      ],
+      "id": "189fbbf7-805b-4d0d-8ecb-0a65d60ce695",
+      "name": "Aggregate"
     }
   ],
   "pinData": {
@@ -415,17 +401,6 @@
         ]
       ]
     },
-    "OpenAI Chat Model1": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "Knowledge gap storage",
-            "type": "ai_languageModel",
-            "index": 1
-          }
-        ]
-      ]
-    },
     "Knowledge gap identification": {
       "main": [
         [
@@ -435,11 +410,6 @@
             "index": 0
           }
         ]
-      ]
-    },
-    "Extract id": {
-      "main": [
-        []
       ]
     },
     "Knowledge gap storage": {
@@ -457,7 +427,7 @@
       "main": [
         [
           {
-            "node": "Update rows in a table",
+            "node": "Aggregate",
             "type": "main",
             "index": 0
           }
@@ -474,17 +444,39 @@
           }
         ]
       ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Update rows in a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract id": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
     }
   },
   "active": false,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "12674bab-1e69-4318-a5ab-c12257efa03a",
+  "versionId": "8da11bab-5a23-46ab-8c5a-47354ce7f1e1",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "427d115aa44fde43cc4dfa6d27acc9d6e385112c0d4fc9eb1827fb04ee64f691"
+    "instanceId": "58372434a2f72b44f89835f77ca2cc9d557f4359b8fe4e69017475e11efa5fab"
   },
-  "id": "sfP7HgNQmEC9Wl4x",
+  "id": "K5KYvavbMkG0Hc6c",
   "tags": []
 }
