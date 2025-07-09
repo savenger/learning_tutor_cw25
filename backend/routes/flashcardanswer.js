@@ -1,11 +1,11 @@
 const router = require('express').Router();
-const { FlashCardAnswer, Flashcard, FlashCardSession } = require('../models');
-const { v4: uuidv4 } = require('uuid');
+const { FlashCardAnswer, Flashcard } = require('../models');
+const axios = require('axios');
 
-// POST validate a flashcard answer with chat session support
+// POST validate a flashcard answer
 router.post('/validate', async (req, res) => {
   try {
-    const { flashcardId, userAnswer, time, sessionId } = req.body;
+    const { flashcardId, userAnswer, time } = req.body;
     
     // Validate required fields
     if (!flashcardId || !userAnswer || !time) {
@@ -20,64 +20,57 @@ router.post('/validate', async (req, res) => {
       return res.status(404).json({ error: 'Flashcard not found' });
     }
 
-    // Generate sessionId if not provided
-    const currentSessionId = sessionId || uuidv4();
-
-    // Find or create session
-    let session = await FlashCardSession.findOne({
-      where: { sessionId: currentSessionId, flashcardId }
+    // Get previous flashcard answers for this flashcard to build conversation history
+    const previousAnswers = await FlashCardAnswer.findAll({
+      where: { flashcardId },
+      order: [['time', 'ASC']]
     });
 
-    if (!session) {
-      session = await FlashCardSession.create({
-        flashcardId,
-        sessionId: currentSessionId,
-        messages: [],
-        isCompleted: false
-      });
-    }
-
-    // Check if answer is correct
-    const isCorrect = userAnswer.toLowerCase().trim() === flashcard.answer.toLowerCase().trim();
+    // Build conversation history from previous answers
+    const conversationMessages = [];
     
-    // Generate feedback
-    let feedback;
-    if (isCorrect) {
-      feedback = 'Correct! Well done!';
-    } else {
-      feedback = 'Not quite right. Try again! Think about the key concepts.';
-    }
-
-    // Add user message to session
-    const userMessage = {
-      role: 'user',
-      content: userAnswer,
-      timestamp: time
-    };
-
-    // Add assistant response to session
-    const assistantMessage = {
+    // Always start with the flashcard question
+    conversationMessages.push({
       role: 'assistant',
-      content: feedback,
-      isCorrect,
-      timestamp: new Date().toISOString()
+      type: 'question',
+      message: flashcard.question
+    });
+
+    // Add previous user answers and assistant feedback
+    previousAnswers.forEach(answer => {
+      conversationMessages.push({
+        role: 'user',
+        type: 'answer',
+        message: answer.userAnswer
+      });
+      
+      if (answer.feedback) {
+        conversationMessages.push({
+          role: 'assistant',
+          type: 'hint',
+          message: answer.feedback
+        });
+      }
+    });
+
+    // Add current user answer
+    conversationMessages.push({
+      role: 'user',
+      type: 'answer',
+      message: userAnswer
+    });
+
+    // Send to n8n evaluate endpoint
+    const conversationHistory = {
+      messages: conversationMessages
     };
 
-    // Update session messages
-    const updatedMessages = [...session.messages, userMessage, assistantMessage];
+    const feedbackResponse = await axios.post('http://n8n/webhook/evaluate', conversationHistory);
     
-    // If correct, mark session as completed
-    if (isCorrect) {
-      await session.update({
-        messages: updatedMessages,
-        isCompleted: true,
-        completedAt: new Date()
-      });
-    } else {
-      await session.update({
-        messages: updatedMessages
-      });
-    }
+    // Extract evaluation result
+    const evaluationResult = feedbackResponse.data;
+    const isCorrect = evaluationResult.type === 'success';
+    const feedback = evaluationResult.message;
 
     // Create the answer record for tracking
     const newFlashCardAnswer = await FlashCardAnswer.create({
@@ -87,14 +80,12 @@ router.post('/validate', async (req, res) => {
       feedback
     });
 
-    // Return the validation result with session info
+    // Return the validation result
     res.status(201).json({
       ...newFlashCardAnswer.toJSON(),
-      sessionId: currentSessionId,
       isCorrect,
-      correctAnswer: isCorrect ? flashcard.answer : null, // Only show correct answer when they get it right
-      messages: updatedMessages,
-      isSessionCompleted: isCorrect
+      evaluationType: evaluationResult.type, // 'success' or 'hint'
+      correctAnswer: isCorrect ? flashcard.answer : null // Only show correct answer when they get it right
     });
   } catch (err) {
     console.error(err);
@@ -102,24 +93,7 @@ router.post('/validate', async (req, res) => {
   }
 });
 
-// GET session history for a flashcard
-router.get('/session/:sessionId', async (req, res) => {
-  try {
-    const session = await FlashCardSession.findOne({
-      where: { sessionId: req.params.sessionId },
-      include: [{ model: Flashcard, as: 'Flashcard' }]
-    });
 
-    if (!session) {
-      return res.status(404).json({ error: 'Session not found' });
-    }
-
-    res.status(200).json(session);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message || 'Failed to fetch session' });
-  }
-});
 
 // POST create a new flashcard answer (legacy endpoint, updated to require flashcardId)
 router.post('/', async (req, res) => {
