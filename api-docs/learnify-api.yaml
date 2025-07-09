@@ -6,12 +6,155 @@ info:
   contact:
     name: Flash Card Learning Platform
 servers:
-  - url: http://localhost:3000
+  - url: http://localhost:5678/webhook-test
     description: Development server
-  - url: https://api.flashcard-platform.com
-    description: Production server
 
 paths:
+  /decks:
+    get:
+      summary: Get all decks
+      description: Returns an array of all available decks (without cards)
+      operationId: getDecks
+      responses:
+        '200':
+          description: List of decks retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeckSummary'
+              examples:
+                sample_decks:
+                  summary: Sample decks response
+                  value:
+                    - id: 1
+                      topic: "Geography"
+                    - id: 2
+                      topic: "History"
+        '500':
+          description: Internal server error
+    post:
+      summary: Create a new deck with cards
+      description: Creates a new deck and its associated cards, returning the deck ID
+      operationId: createDeck
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Deck'
+            examples:
+              sample_deck:
+                summary: Sample deck creation
+                description: Example of creating a geography deck
+                value:
+                  topic: "Geography"
+                  cards:
+                    - question: "What is the capital of France?"
+                      answer: "Paris"
+                    - question: "What is the largest country in the world?"
+                      answer: "Russia"
+                    - question: "What is the capital of Japan?"
+                      answer: "Tokyo"
+      responses:
+        '201':
+          description: Deck created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deck_id:
+                    type: integer
+                    description: The ID of the newly created deck
+                    example: 123
+        '400':
+          description: Bad request - invalid deck data
+        '500':
+          description: Internal server error
+
+  /decks/{deck_id}:
+    get:
+      summary: Get a specific deck by ID
+      description: Returns a specific deck with all its cards
+      operationId: getDeck
+      parameters:
+        - name: deck_id
+          in: path
+          required: true
+          description: The ID of the deck to retrieve
+          schema:
+            type: integer
+          example: 1
+      responses:
+        '200':
+          description: Deck retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deck'
+              examples:
+                sample_deck:
+                  summary: Sample deck response
+                  value:
+                    id: 1
+                    topic: "Geography"
+                    cards:
+                      - id: 1
+                        question: "What is the capital of France?"
+                        answer: "Paris"
+                      - id: 2
+                        question: "What is the largest country in the world?"
+                        answer: "Russia"
+        '404':
+          description: Deck not found
+        '400':
+          description: Bad request - invalid deck ID
+        '500':
+          description: Internal server error
+
+  /cards:
+    get:
+      summary: Draw a random card from a deck
+      description: Returns a random card from the specified deck
+      operationId: drawCard
+      parameters:
+        - name: deck_id
+          in: query
+          required: true
+          description: The ID of the deck to draw from
+          schema:
+            type: integer
+          example: 123
+        - name: draw
+          in: query
+          required: false
+          description: Flag to indicate drawing a random card (implicitly true when present)
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: Card drawn successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Card'
+              examples:
+                sample_card:
+                  summary: Sample card response
+                  value:
+                    id: 1
+                    question: "What is the capital of France?"
+                    answer: "Paris"
+        '404':
+          description: Deck not found
+        '400':
+          description: Bad request - invalid deck ID
+        '500':
+          description: Internal server error
+
   /evaluate:
     post:
       summary: Evaluate user's answer against the correct answer
@@ -26,7 +169,7 @@ paths:
             examples:
               success_case:
                 summary: Success case example
-                description: Example where user eventually gets the correct answer
+                description: Example where user eventually gets the correct answer after receiving a hint
                 value:
                   messages:
                     - role: assistant
@@ -41,16 +184,13 @@ paths:
                     - role: user
                       type: answer
                       message: Paris
-                    - role: assistant
-                      type: success
-                      message: Correct!
       responses:
         '200':
           description: Evaluation result
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/EvaluationResult'
               examples:
                 success:
                   summary: Success response
@@ -67,11 +207,11 @@ paths:
         '500':
           description: Internal server error
 
-  /store:
+  /learning-history:
     post:
       summary: Store the complete learning session history
       description: Stores the entire conversation history for the learning session
-      operationId: store
+      operationId: storeLearningHistory
       requestBody:
         required: true
         content:
@@ -81,7 +221,7 @@ paths:
             examples:
               completed_session:
                 summary: Completed learning session
-                description: Example of a completed learning session
+                description: Example of a completed learning session with alternating assistant/user messages
                 value:
                   messages:
                     - role: assistant
@@ -98,7 +238,7 @@ paths:
                       message: Paris
                     - role: assistant
                       type: success
-                      message: Correct!
+                      message: Correct! Paris is the capital of France.
       responses:
         '200':
           description: History stored successfully
@@ -121,6 +261,61 @@ paths:
 
 components:
   schemas:
+    DeckSummary:
+      type: object
+      required:
+        - id
+        - topic
+      properties:
+        id:
+          type: integer
+          description: The unique identifier for the deck
+          example: 1
+        topic:
+          type: string
+          description: The topic or subject of the deck
+          example: "Geography"
+
+    Deck:
+      type: object
+      required:
+        - topic
+        - cards
+      properties:
+        id:
+          type: integer
+          description: The unique identifier for the deck (optional for creation)
+          example: 1
+        topic:
+          type: string
+          description: The topic or subject of the deck
+          example: "Geography"
+        cards:
+          type: array
+          items:
+            $ref: '#/components/schemas/Card'
+          description: Array of cards in the deck
+          minItems: 1
+
+    Card:
+      type: object
+      required:
+        - question
+        - answer
+      properties:
+        id:
+          type: integer
+          description: The unique identifier for the card (optional for creation)
+          example: 1
+        question:
+          type: string
+          description: The question text
+          example: "What is the capital of France?"
+        answer:
+          type: string
+          description: The answer text
+          example: "Paris"
+
     History:
       type: object
       required:
@@ -130,7 +325,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Message'
-          description: Array of conversation messages
+          description: Array of conversation messages. The conversation always starts with an assistant question, followed by alternating user answers and assistant responses (hints or success messages).
+          minItems: 1
 
     Message:
       type: object
@@ -142,11 +338,25 @@ components:
         role:
           type: string
           enum: [assistant, user]
-          description: Role identifier for the message sender
+          description: Role identifier for the message sender. Assistant always starts with a question, then alternates with user responses.
         type:
           type: string
           enum: [question, answer, hint, success]
-          description: Type of message content
+          description: Type of message content. Assistant messages can be 'question', 'hint', or 'success'. User messages are always 'answer'.
         message:
           type: string
           description: The message content
+
+    EvaluationResult:
+      type: object
+      required:
+        - type
+        - message
+      properties:
+        type:
+          type: string
+          enum: [success, hint]
+          description: The type of evaluation result
+        message:
+          type: string
+          description: The message content of the evaluation result
