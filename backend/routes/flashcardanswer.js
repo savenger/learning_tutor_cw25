@@ -36,8 +36,8 @@ router.post('/validate', async (req, res) => {
       message: flashcard.question
     });
 
-    conversationHistory.push({
-      role: 'user',
+    conversationMessages.push({
+      role: 'assistant',
       type: 'solution',
       message: flashcard.answer
     });
