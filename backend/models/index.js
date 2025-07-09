@@ -17,7 +17,6 @@ db.Sequelize = Sequelize;
 db.Deck = require('./deck')(sequelize, DataTypes);
 db.Flashcard = require('./flashcard')(sequelize, DataTypes);
 db.FlashCardAnswer = require('./flashcardanswer')(sequelize, DataTypes);
-db.FlashCardSession = require('./flashcardsession')(sequelize, DataTypes);
 
 // Define associations
 db.Deck.hasMany(db.Flashcard, {
@@ -43,16 +42,6 @@ db.FlashCardAnswer.belongsTo(db.Flashcard, {
   as: 'Flashcard',
 });
 
-// Add associations for FlashCardSession
-db.Flashcard.hasMany(db.FlashCardSession, {
-  foreignKey: 'flashcardId',
-  as: 'Sessions',
-  onDelete: 'CASCADE', // If a flashcard is deleted, its sessions are also deleted
-});
 
-db.FlashCardSession.belongsTo(db.Flashcard, {
-  foreignKey: 'flashcardId',
-  as: 'Flashcard',
-});
 
 module.exports = db;
