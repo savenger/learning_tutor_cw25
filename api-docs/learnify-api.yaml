@@ -29,9 +29,9 @@ paths:
                   summary: Sample decks response
                   value:
                     - id: 1
-                      topic: "Geography"
+                      name: "Geography"
                     - id: 2
-                      topic: "History"
+                      name: "History"
         '500':
           description: Internal server error
     post:
@@ -49,7 +49,8 @@ paths:
                 summary: Sample deck creation
                 description: Example of creating a geography deck
                 value:
-                  topic: "Geography"
+                  name: "Geography"
+                  description: "Learn about world capitals and geography facts"
                   cards:
                     - question: "What is the capital of France?"
                       answer: "Paris"
@@ -99,14 +100,19 @@ paths:
                   summary: Sample deck response
                   value:
                     id: 1
-                    topic: "Geography"
+                    name: "Geography"
+                    description: "Learn about world capitals and geography facts"
                     cards:
                       - id: 1
                         question: "What is the capital of France?"
                         answer: "Paris"
+                        seen: false
+                        score: null
                       - id: 2
                         question: "What is the largest country in the world?"
                         answer: "Russia"
+                        seen: true
+                        score: 90
         '404':
           description: Deck not found
         '400':
@@ -148,6 +154,8 @@ paths:
                     id: 1
                     question: "What is the capital of France?"
                     answer: "Paris"
+                    seen: false
+                    score: null
         '404':
           description: Deck not found
         '400':
@@ -265,31 +273,35 @@ components:
       type: object
       required:
         - id
-        - topic
+        - name
       properties:
         id:
           type: integer
           description: The unique identifier for the deck
           example: 1
-        topic:
+        name:
           type: string
-          description: The topic or subject of the deck
+          description: The name of the deck
           example: "Geography"
 
     Deck:
       type: object
       required:
-        - topic
+        - name
         - cards
       properties:
         id:
           type: integer
           description: The unique identifier for the deck (optional for creation)
           example: 1
-        topic:
+        name:
           type: string
-          description: The topic or subject of the deck
+          description: The name of the deck
           example: "Geography"
+        description:
+          type: string
+          description: A description of the deck content
+          example: "Learn about world capitals and geography facts"
         cards:
           type: array
           items:
@@ -315,6 +327,16 @@ components:
           type: string
           description: The answer text
           example: "Paris"
+        seen:
+          type: boolean
+          description: Whether the card has been seen by the user
+          default: false
+          example: false
+        score:
+          type: integer
+          nullable: true
+          description: The user's score for this card (can be null if not yet scored)
+          example: 85
 
     History:
       type: object
