@@ -1,4 +1,4 @@
-import { Deck, Flashcard, FlashCardAnswer } from "../types";
+import { Deck, Flashcard, FlashCardAnswer, FlashCardValidationResponse, FlashCardSession } from "../types";
 
 const BASE_URL = 'http://localhost:3001/api';
 
@@ -95,13 +95,33 @@ export const deleteFlashcard = async (id: number) => {
 };
 
 // FlashCardAnswer Management
-export const recordFlashcardAnswer = async (
+export const validateFlashcardAnswer = async (
+  flashcardId: number,
+  userAnswer: string,
   time: string,
-  userAnswer: string
+  sessionId?: string
+) => {
+  return fetchData<FlashCardValidationResponse>(`${BASE_URL}/flashcardanswers/validate`, 'POST', {
+    flashcardId,
+    userAnswer,
+    time,
+    sessionId,
+  });
+};
+
+export const getFlashcardSession = async (sessionId: string) => {
+  return fetchData<FlashCardSession>(`${BASE_URL}/flashcardanswers/session/${sessionId}`);
+};
+
+export const recordFlashcardAnswer = async (
+  flashcardId: number,
+  userAnswer: string,
+  time: string
 ) => {
   return fetchData<FlashCardAnswer>(`${BASE_URL}/flashcardanswers`, 'POST', {
-    time,
+    flashcardId,
     userAnswer,
+    time,
   });
 };
 

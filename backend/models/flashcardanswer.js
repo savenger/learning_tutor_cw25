@@ -14,6 +14,18 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(1000), // Up to 1000 characters
       allowNull: false,
     },
+    flashcardId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'Flashcards', // This is the table name
+        key: 'id',
+      },
+    },
+    feedback: {
+      type: DataTypes.STRING(1000), // Up to 1000 characters for AI feedback
+      allowNull: true, // Can be null initially, will be populated after validation
+    },
   }, {
     tableName: 'FlashCardAnswers',
     timestamps: true,

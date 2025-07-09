@@ -17,6 +17,7 @@ db.Sequelize = Sequelize;
 db.Deck = require('./deck')(sequelize, DataTypes);
 db.Flashcard = require('./flashcard')(sequelize, DataTypes);
 db.FlashCardAnswer = require('./flashcardanswer')(sequelize, DataTypes);
+db.FlashCardSession = require('./flashcardsession')(sequelize, DataTypes);
 
 // Define associations
 db.Deck.hasMany(db.Flashcard, {
@@ -24,15 +25,34 @@ db.Deck.hasMany(db.Flashcard, {
   as: 'Flashcards',
   onDelete: 'CASCADE', // If a deck is deleted, its flashcards are also deleted
 });
+
 db.Flashcard.belongsTo(db.Deck, {
   foreignKey: 'deckId',
   as: 'Deck',
 });
 
-// No direct association specified for FlashCardAnswer, assuming it's independent or linked implicitly via frontend logic.
-// If FlashCardAnswer needs to be linked to a Flashcard, add:
-// db.Flashcard.hasMany(db.FlashCardAnswer, { foreignKey: 'flashcardId', as: 'Answers' });
-// db.FlashCardAnswer.belongsTo(db.Flashcard, { foreignKey: 'flashcardId', as: 'Flashcard' });
+// Add associations for FlashCardAnswer
+db.Flashcard.hasMany(db.FlashCardAnswer, {
+  foreignKey: 'flashcardId',
+  as: 'Answers',
+  onDelete: 'CASCADE', // If a flashcard is deleted, its answers are also deleted
+});
 
+db.FlashCardAnswer.belongsTo(db.Flashcard, {
+  foreignKey: 'flashcardId',
+  as: 'Flashcard',
+});
+
+// Add associations for FlashCardSession
+db.Flashcard.hasMany(db.FlashCardSession, {
+  foreignKey: 'flashcardId',
+  as: 'Sessions',
+  onDelete: 'CASCADE', // If a flashcard is deleted, its sessions are also deleted
+});
+
+db.FlashCardSession.belongsTo(db.Flashcard, {
+  foreignKey: 'flashcardId',
+  as: 'Flashcard',
+});
 
 module.exports = db;
