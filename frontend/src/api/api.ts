@@ -156,3 +156,8 @@ export const processDocument = async (file?: File) => {
     );
   }
 };
+
+// Feedback & Recommendations
+export const getFeedbackRecommendations = async () => {
+  return fetchData<{ feedback: string }>(`${BASE_URL}/feedback`);
+};

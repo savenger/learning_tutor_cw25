@@ -20,6 +20,38 @@ router.use('/decks', deckRoutes);
 router.use('/flashcards', flashcardRoutes);
 router.use('/flashcardanswers', flashcardAnswerRoutes);
 
+// Feedback & Recommendations route
+router.get('/feedback', async (req, res) => {
+  try {
+    // Mock feedback data - in a real app, this would analyze user's learning patterns
+    const mockFeedback = [
+      "Great job on your recent study sessions! You've been consistently practicing your flashcards, which is key to long-term retention.",
+      "I noticed you're spending more time on certain topics. Consider breaking down complex concepts into smaller, more manageable flashcards.",
+      "Your accuracy has improved by 15% over the past week. Keep up the excellent work!",
+      "You tend to study better in the evening hours. Try to maintain this schedule for optimal learning.",
+      "Consider reviewing cards you got wrong more frequently. Spaced repetition of challenging material will help reinforce your memory.",
+      "You're doing well with factual recall. Try adding more conceptual questions to deepen your understanding.",
+      "Your study streak is impressive! Consistency is one of the most important factors in successful learning.",
+      "I recommend taking short breaks between study sessions to help consolidate your memory.",
+      "You might benefit from creating flashcards that connect different topics together to build stronger knowledge networks.",
+      "Your performance suggests you're ready to tackle more advanced material in your strongest subjects."
+    ];
+
+    // Select a random feedback message
+    const randomFeedback = mockFeedback[Math.floor(Math.random() * mockFeedback.length)];
+    
+    res.json({ 
+      feedback: randomFeedback,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Error generating feedback:', error);
+    res.status(500).json({ 
+      error: 'Failed to generate feedback recommendations' 
+    });
+  }
+});
+
 // Custom controller routes
 router.post('/processDocument', upload.single('document'), async (req, res) => {
   try {
