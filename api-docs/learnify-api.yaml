@@ -30,34 +30,27 @@ paths:
                 value:
                   messages:
                     - role: assistant
-                      content:
-                        type: question
-                        message: What is the capital of France?
+                      type: question
+                      message: What is the capital of France?
                     - role: user
-                      content:
-                        type: answer
-                        message: Kiel
+                      type: answer
+                      message: Kiel
                     - role: assistant
-                      content:
-                        type: hint
-                        message: Think of the city known as the 'City of Light' and famous for the Eiffel Tower.
+                      type: hint
+                      message: Think of the city known as the 'City of Light' and famous for the Eiffel Tower.
                     - role: user
-                      content:
-                        type: answer
-                        message: Paris
+                      type: answer
+                      message: Paris
                     - role: assistant
-                      content:
-                        type: success
-                        message: Correct!
+                      type: success
+                      message: Correct!
       responses:
         '200':
           description: Evaluation result
           content:
             application/json:
               schema:
-                oneOf:
-                  - $ref: '#/components/schemas/Success'
-                  - $ref: '#/components/schemas/Hint'
+                $ref: '#/components/schemas/Message'
               examples:
                 success:
                   summary: Success response
@@ -92,25 +85,20 @@ paths:
                 value:
                   messages:
                     - role: assistant
-                      content:
-                        type: question
-                        message: What is the capital of France?
+                      type: question
+                      message: What is the capital of France?
                     - role: user
-                      content:
-                        type: answer
-                        message: Kiel
+                      type: answer
+                      message: Kiel
                     - role: assistant
-                      content:
-                        type: hint
-                        message: Think of the city known as the 'City of Light' and famous for the Eiffel Tower.
+                      type: hint
+                      message: Think of the city known as the 'City of Light' and famous for the Eiffel Tower.
                     - role: user
-                      content:
-                        type: answer
-                        message: Paris
+                      type: answer
+                      message: Paris
                     - role: assistant
-                      content:
-                        type: success
-                        message: Correct!
+                      type: success
+                      message: Correct!
       responses:
         '200':
           description: History stored successfully
@@ -141,99 +129,24 @@ components:
         messages:
           type: array
           items:
-            oneOf:
-              - $ref: '#/components/schemas/AssistantMessage'
-              - $ref: '#/components/schemas/UserMessage'
+            $ref: '#/components/schemas/Message'
           description: Array of conversation messages
 
-    AssistantMessage:
+    Message:
       type: object
       required:
         - role
-        - content
+        - type
+        - message
       properties:
         role:
           type: string
-          enum: [assistant]
-          description: Role identifier for assistant messages
-        content:
-          oneOf:
-            - $ref: '#/components/schemas/Question'
-            - $ref: '#/components/schemas/EvaluationResult'
-          description: Content of the assistant message
-
-    UserMessage:
-      type: object
-      required:
-        - role
-        - content
-      properties:
-        role:
-          type: string
-          enum: [user]
-          description: Role identifier for user messages
-        content:
-          $ref: '#/components/schemas/UserSendsAnswer'
-          description: Content of the user message
-
-    Question:
-      type: object
-      required:
-        - type
-        - message
-      properties:
+          enum: [assistant, user]
+          description: Role identifier for the message sender
         type:
           type: string
-          enum: [question]
-          description: Type identifier for question content
+          enum: [question, answer, hint, success]
+          description: Type of message content
         message:
           type: string
-          description: The question text presented to the user
-
-    EvaluationResult:
-      oneOf:
-        - $ref: '#/components/schemas/Success'
-        - $ref: '#/components/schemas/Hint'
-      description: Result of answer evaluation
-
-    Success:
-      type: object
-      required:
-        - type
-        - message
-      properties:
-        type:
-          type: string
-          enum: [success]
-          description: Type identifier for successful evaluation
-        message:
-          type: string
-          description: Feedback message for correct answer
-
-    Hint:
-      type: object
-      required:
-        - type
-        - message
-      properties:
-        type:
-          type: string
-          enum: [hint]
-          description: Type identifier for hint evaluation
-        message:
-          type: string
-          description: Hint message to help user find correct answer
-
-    UserSendsAnswer:
-      type: object
-      required:
-        - type
-        - message
-      properties:
-        type:
-          type: string
-          enum: [answer]
-          description: Type identifier for user answer
-        message:
-          type: string
-          description: The user's answer text
+          description: The message content
