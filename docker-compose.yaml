@@ -1,16 +1,40 @@
 services:
 
+  frontend:
+    build: frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   backend:
     build: backend
     ports:
-      - 8080:80
+      - "3001:3000"
     environment:
-      - DB_HOST=psql_backend
-      - DB_PORT=5433
-      - DB_USER=backend
-      - DB_PASSWORD=backend
+      - PORT=3000
+      - POSTGRES_HOST=psql_backend
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=backend
+      - POSTGRES_PASSWORD=backend
+      - POSTGRES_DB=backend
+    depends_on:
+      psql_backend:
+        condition: service_healthy
     volumes:
       - ./backend:/app
+      - /app/node_modules # Prevent host node_modules from overwriting container's
+    command: npm start
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   n8n:
     image: docker.n8n.io/n8nio/n8n
@@ -62,7 +86,7 @@ services:
     command: ["uv", "run", "graphiti_mcp_server.py", "--transport", "sse"]
   
   neo4j:
-    image: neo4j:5.22.0
+    image: neo4j:5.26.0
     
     ports:
         - "7474:7474"  # HTTP
@@ -84,7 +108,7 @@ services:
       - "5432:5432"
   
   psql_backend:
-    image: postgres
+    image: postgres:14
     environment:
       - POSTGRES_DB=backend
       - POSTGRES_USER=backend
@@ -93,6 +117,11 @@ services:
       - psql_backend:/var/lib/postgresql/data
     ports:
       - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U backend -d backend"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   neo4j_data:
