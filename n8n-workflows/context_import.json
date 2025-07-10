@@ -3,7 +3,7 @@
   "nodes": [
     {
       "parameters": {
-        "jsCode": "// Extract all card data from the AI response\nconst aiResponse = $('Message a model1').item.json.message.content;\nconst deckId = $('Insert rows in a table3').item.json.id;\n\n// Find all card entries in the response\nconst cards = [];\nlet cardIndex = 1;\n\nwhile (aiResponse[`Card_${cardIndex}`]) {\n  const card = aiResponse[`Card_${cardIndex}`];\n  cards.push({\n    deck_id: deckId,\n    question: card.Q,\n    answer: card.A\n  });\n  cardIndex++;\n}\n\n// Return array of card objects\nreturn cards.map(card => ({ json: card }));"
+        "jsCode": "// Extract all card data from the AI response\nconst aiResponse = $('Basic LLM Chain').first().json.output;\nconst deckId = $input.first().json.id;\n\n// Find all card entries in the response\nconst cards = [];\nlet cardIndex = 1;\n\nwhile (aiResponse[`Card_${cardIndex}`]) {\n  const card = aiResponse[`Card_${cardIndex}`];\n  cards.push({\n    deck_id: deckId,\n    question: card.Q,\n    answer: card.A\n  });\n  cardIndex++;\n}\n\n// Return array of card objects\nreturn cards.map(card => ({ json: card }));"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -138,39 +138,6 @@
     },
     {
       "parameters": {
-        "modelId": {
-          "__rl": true,
-          "value": "gpt-4-turbo",
-          "mode": "list",
-          "cachedResultName": "GPT-4-TURBO"
-        },
-        "messages": {
-          "values": [
-            {
-              "content": "=Extract 5 question and answer pairs from the text below. Each question should focus on a distinct, meaningful point from the text, and each answer should be specific, accurate, and derived only from the content provided. Avoid yes/no questions unless contextually necessary. When text is surrounded by <important> tags ask about these facts first.\nDont ask specific question about what is mentioned in the text, but about the topic that is discussed in the text.\n\nText:\n{{ $json.body.text }}\n\nOutput format:\n    \"Topic\": [overarching_topic],\n    \"Card_1\": {\n      \"Q\": [Question_1],\n      \"A\": [Answer_1]\n    },\n    \"Card_2\": {\n      \"Q\": [Question_2],\n      \"A\": [Answer_2]\n    },\n    \"Card_3\": {\n      \"Q\": [Question_3],\n      \"A\": [Answer_3]\n    },\n    \"Card_4\": {\n      \"Q\": [Question_4],\n      \"A\": [Answer_4]\n    },\n    \"Card_5\": {\n      \"Q\": [Question_5],\n      \"A\": [Answer_5]\n    }\n... and so on."
-            }
-          ]
-        },
-        "jsonOutput": true,
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.openAi",
-      "typeVersion": 1.8,
-      "position": [
-        208,
-        240
-      ],
-      "id": "294cf4fa-39ef-4c62-8edc-537b74f1e004",
-      "name": "Message a model1",
-      "credentials": {
-        "openAiApi": {
-          "id": "B5zyomPSBTSYpGHb",
-          "name": "OpenAi account"
-        }
-      }
-    },
-    {
-      "parameters": {
         "schema": {
           "__rl": true,
           "value": "public",
@@ -186,7 +153,7 @@
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "name": "={{ $json.message.content.Topic }}",
+            "name": "={{ $json.output.Topic }}",
             "createdAt": "={{ $now }}",
             "updatedAt": "={{ $now }}"
           },
@@ -280,6 +247,67 @@
       "id": "d7da014a-5a26-4e64-8115-9aa7eeaee1cb",
       "name": "Webhook",
       "webhookId": "3582ce39-9b4c-4136-b8c9-f7875c9ce98b"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.text }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=Extract 5 question and answer pairs from the text below. Each question should focus on a distinct, meaningful point from the text, and each answer should be specific, accurate, and derived only from the content provided. Avoid yes/no questions unless contextually necessary. When text is surrounded by <important> tags ask about these facts first. Dont ask specific question about what is mentioned in the text, but about the topic that is discussed in the text.  Text: {{ $json.body.text }}  Output format:     \"Topic\": [overarching_topic],     \"Card_1\": {       \"Q\": [Question_1],       \"A\": [Answer_1]     },     \"Card_2\": {       \"Q\": [Question_2],       \"A\": [Answer_2]     },     \"Card_3\": {       \"Q\": [Question_3],       \"A\": [Answer_3]     },     \"Card_4\": {       \"Q\": [Question_4],       \"A\": [Answer_4]     },     \"Card_5\": {       \"Q\": [Question_5],       \"A\": [Answer_5]     } ... and so on."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        160,
+        240
+      ],
+      "id": "4646533d-b1bb-4504-b68f-d662ccb0659a",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"Topic\": \"Generic_Topic\",\n  \"Card_1\": {\n    \"Q\": \"Generic question 1?\",\n    \"A\": \"Generic answer 1.\"\n  },\n  \"Card_2\": {\n    \"Q\": \"Generic question 2?\",\n    \"A\": \"Generic answer 2.\"\n  },\n  \"Card_3\": {\n    \"Q\": \"Generic question 3?\",\n    \"A\": \"Generic answer 3.\"\n  },\n  \"Card_4\": {\n    \"Q\": \"Generic question 4?\",\n    \"A\": \"Generic answer 4.\"\n  },\n  \"Card_5\": {\n    \"Q\": \"Generic question 5?\",\n    \"A\": \"Generic answer 5.\"\n  }\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        352,
+        384
+      ],
+      "id": "b65f5439-d1ad-4627-96db-582e80f5a6db",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-3-7-sonnet-20250219",
+          "mode": "list",
+          "cachedResultName": "Claude Sonnet 3.7"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        144,
+        400
+      ],
+      "id": "b1ab413f-738f-4a7f-aa31-705dc7e2270f",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "SJAIVRpkEmi88J49",
+          "name": "Anthropic account"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -289,17 +317,6 @@
         [
           {
             "node": "Insert Cards",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Message a model1": {
-      "main": [
-        [
-          {
-            "node": "Insert rows in a table3",
             "type": "main",
             "index": 0
           }
@@ -321,7 +338,40 @@
       "main": [
         [
           {
-            "node": "Message a model1",
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Insert rows in a table3",
             "type": "main",
             "index": 0
           }
@@ -329,11 +379,11 @@
       ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "1be87867-f435-4548-adbe-a1768bd944a2",
+  "versionId": "44d034c5-867e-4d77-bc76-2b6580ee9300",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "2dde770f3b75a1e048d658932d5eb411a8b21e77f7bfba69449c84c129c24a26"
