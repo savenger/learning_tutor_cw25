@@ -6,7 +6,7 @@ info:
   contact:
     name: Flash Card Learning Platform
 servers:
-  - url: http://localhost:5678/webhook-test
+  - url: http://localhost:5678/webhook
     description: Development server
 
 paths:
