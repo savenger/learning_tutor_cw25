@@ -199,16 +199,39 @@ const TextHighlighter: React.FC<TextHighlighterProps> = ({
   };
 
   const handleTextChange = (e: React.FormEvent<HTMLDivElement>) => {
-    const newText = e.currentTarget.innerText;
+    const newText = e.currentTarget.textContent || '';
+    
+    // Store cursor position before updating state
+    const selection = window.getSelection();
+    let cursorPosition = 0;
+    if (selection && selection.rangeCount > 0 && textDisplayRef.current) {
+      const range = selection.getRangeAt(0);
+      const preCaretRange = document.createRange();
+      preCaretRange.selectNodeContents(textDisplayRef.current);
+      preCaretRange.setEnd(range.endContainer, range.endOffset);
+      cursorPosition = preCaretRange.toString().length;
+    }
+    
     setText(newText);
     
     if (isPlaceholderText && newText !== "Paste your text here to start highlighting...") {
       setIsPlaceholderText(false);
     }
     
-    const { cleanText, highlights: existingHighlights } = extractExistingHighlights(newText);
-    setText(cleanText);
-    setHighlights(mergeHighlights(existingHighlights));
+    // Restore cursor position after state update
+    setTimeout(() => {
+      if (textDisplayRef.current && selection) {
+        const textNode = textDisplayRef.current.firstChild;
+        if (textNode && textNode.nodeType === Node.TEXT_NODE) {
+          const range = document.createRange();
+          const adjustedPosition = Math.min(cursorPosition, textNode.textContent?.length || 0);
+          range.setStart(textNode, adjustedPosition);
+          range.setEnd(textNode, adjustedPosition);
+          selection.removeAllRanges();
+          selection.addRange(range);
+        }
+      }
+    }, 0);
   };
 
   const removeHighlight = (indexToRemove: number) => {
