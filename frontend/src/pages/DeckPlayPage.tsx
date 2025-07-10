@@ -155,7 +155,7 @@ const DeckPlayPage: React.FC = () => {
     
     // If user has chatted with AI, post the chat before skipping
     if (chatMessages.length > 0) {
-      await postChat(currentCard.id, chatMessages, currentCard.answer);
+      postChat(currentCard.id, chatMessages, currentCard.answer);
     }
     
     // Move to next card
