@@ -5,6 +5,7 @@
       "parameters": {
         "httpMethod": "POST",
         "path": "weakness",
+        "responseMode": "responseNode",
         "options": {}
       },
       "type": "n8n-nodes-base.webhook",
@@ -52,8 +53,8 @@
       "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
       "typeVersion": 1,
       "position": [
-        -180,
-        80
+        -220,
+        60
       ],
       "id": "f2647dfb-d141-4700-89b2-9821be3b65f6",
       "name": "MCP Client",
@@ -74,7 +75,7 @@
               "role": "system"
             },
             {
-              "content": "={{$json.body.messages\n  .map(msg => `Frage: ${msg.question}\\nAntwort: ${msg.answer}`)\n  .join('\\n\\n')}}\n\n{{ $json.body.solution }}"
+              "content": "={{\n$json.body.messages\n.reduce((acc, msg, index, arr) => {\n    if (msg.role === \"assistant\" && arr[index + 1]?.role === \"user\") {\n      acc.push(\n        `Question: ${msg.content}\\nAnswer: ${arr[index + 1].content}`\n      );\n    }\n    return acc;\n  }, [])\n  .join(\"\\n\\n\")\n}}\n\n{{ $json.body.solution }}"
             }
           ]
         },
@@ -286,11 +287,11 @@
         "messages": {
           "values": [
             {
-              "content": "Grade the answers of the user in school nodes (1-6 with 1 being the best) regarding the mentioning of knowledge compared to the perfect solution.\n\nALWAYS OUTPUT A JSON LIKE THIS {\"score\": INT",
+              "content": "Grade the answers of the user in school nodes (1-6 with 1 being the best) regarding the mentioning of knowledge compared to the perfect solution.\n\nALWAYS OUTPUT A JSON LIKE THIS {\"score\": INT}",
               "role": "system"
             },
             {
-              "content": "=CHAT\n{{$json.body.messages\n  .map(msg => `Frage: ${msg.question}\\nAntwort: ${msg.answer}`)\n  .join('\\n\\n')}}\n\nPERFECT SOLUTION\n{{ $json.body.solution }}"
+              "content": "=CHAT\n{{\n$json.body.messages\n  .reduce((acc, msg, index, arr) => {\n    if (msg.role === \"assistant\" && arr[index + 1]?.role === \"user\") {\n      acc.push(\n        `Question: ${msg.content}\\nAnswer: ${arr[index + 1].content}`\n      );\n    }\n    return acc;\n  }, [])\n  .join(\"\\n\\n\")\n}}\n\nPERFECT SOLUTION\n{{ $json.body.solution }}"
             }
           ]
         },
@@ -325,6 +326,22 @@
       ],
       "id": "189fbbf7-805b-4d0d-8ecb-0a65d60ce695",
       "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "respondWith": "noData",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1120,
+        -160
+      ],
+      "id": "abe89014-c989-437e-9bfc-2fd388a5428a",
+      "name": "Respond to Webhook"
     }
   ],
   "pinData": {
@@ -335,20 +352,44 @@
             "id": "1",
             "messages": [
               {
-                "question": "I’ve heard of Pandas in Python. Is it about animals?",
-                "answer": "No, it’s a library used for data analysis."
+                "role": "assistant",
+                "content": "I’ve heard of Pandas in Python. Is it about animals?",
+                "timestamp": "2025-07-10T09:00:34.888Z"
               },
               {
-                "question": "Oh, what can you do with it?",
-                "answer": "You can load, manipulate, and analyze tabular data like spreadsheets."
+                "role": "user",
+                "content": "No, it’s a library used for data analysis.",
+                "timestamp": "2025-07-10T09:00:40.888Z"
               },
               {
-                "question": "Sounds cool. Is it hard to use?",
-                "answer": "Not really. It’s designed to be intuitive. You mostly work with DataFrames."
+                "role": "assistant",
+                "content": "Oh, what can you do with it?",
+                "timestamp": "2025-07-10T09:00:46.888Z"
               },
               {
-                "question": "What’s a DataFrame?",
-                "answer": "It’s like a table with rows and columns. Similar to an Excel sheet."
+                "role": "user",
+                "content": "You can load, manipulate, and analyze tabular data like spreadsheets.",
+                "timestamp": "2025-07-10T09:00:52.888Z"
+              },
+              {
+                "role": "assistant",
+                "content": "Sounds cool. Is it hard to use?",
+                "timestamp": "2025-07-10T09:00:58.888Z"
+              },
+              {
+                "role": "user",
+                "content": "Not really. It’s designed to be intuitive. You mostly work with DataFrames.",
+                "timestamp": "2025-07-10T09:01:05.888Z"
+              },
+              {
+                "role": "assistant",
+                "content": "What’s a DataFrame?",
+                "timestamp": "2025-07-10T09:01:10.888Z"
+              },
+              {
+                "role": "user",
+                "content": "It’s like a table with rows and columns. Similar to an Excel sheet.",
+                "timestamp": "2025-07-10T09:01:12.888Z"
               }
             ],
             "solution": "Pandas is a powerful open-source library in Python used for data manipulation and analysis. Its core data structures are Series (for one-dimensional data) and DataFrame (for two-dimensional tabular data). Pandas allows users to easily read data from various sources like CSV files or Excel spreadsheets, clean and transform it, and perform statistical analyses. Even users with little programming experience can use Pandas effectively thanks to its clear syntax and documentation. It’s widely used in data science, finance, and research for tasks like filtering, grouping, aggregating, and visualizing data."
@@ -466,13 +507,24 @@
           }
         ]
       ]
+    },
+    "Update rows in a table": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "8da11bab-5a23-46ab-8c5a-47354ce7f1e1",
+  "versionId": "ea3fa4ec-a24e-4c00-b336-adba1333ce3d",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "58372434a2f72b44f89835f77ca2cc9d557f4359b8fe4e69017475e11efa5fab"

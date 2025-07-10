@@ -45,9 +45,10 @@ const DeckPlayPage: React.FC = () => {
   }, [deckId]);
 
   const postUserChat = async () => {
+    if (!currentCard) return;
     setLoadingNextCard(true);
     setError(null);
-    await postChat(deckId, chatMessages);
+    await postChat(currentCard!.id, chatMessages, currentCard!.answer);
   };
 
   const fetchNextCard = useCallback(async () => {

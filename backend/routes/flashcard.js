@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const { Flashcard, Deck } = require('../models');
 const { Op } = require('sequelize');
+const axios = require('axios');
 
 // GET all flashcards
 router.get('/', async (req, res) => {
@@ -82,6 +83,41 @@ router.delete('/:id', async (req, res) => {
     }
 
     res.status(200).json({ message: 'Flashcard deleted successfully!' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json(err);
+  }
+});
+
+// POST store weakness
+router.post('/:id/weakness', async (req, res) => {
+  try {
+    const cardId = req.params.id;
+    var { messages } = req.body;
+
+    const flashcardData = await Flashcard.findByPk(req.params.id, {
+      include: [{ model: Deck, as: 'Deck' }],
+    });
+
+    const initial_question = {
+      "role": "assistant",
+      "content": flashcardData.question 
+    }
+    messages = [initial_question, ...messages];
+
+    const data = {'id': cardId, 'messages': messages, 'solution': flashcardData.answer};
+
+    // store current result
+    const webhookUrl = 'http://n8n:5678/webhook/weakness';
+    
+    console.log('Forwarding chat to webhook...');
+    console.log(data);
+    const response = await axios.post(webhookUrl, data, {
+      timeout: 30000 // 30 second timeout
+    });
+
+    console.log('Webhook response:', response.status, response.data);
+    res.status(200);
   } catch (err) {
     console.error(err);
     res.status(500).json(err);

@@ -1,7 +1,6 @@
 const router = require('express').Router();
 const { Deck, Flashcard, sequelize } = require('../models');
 const { Op } = require('sequelize'); // Import Op for operators if needed
-const axios = require('axios');
 
 // GET all decks
 router.get('/', async (req, res) => {
@@ -27,29 +26,6 @@ router.get('/:id', async (req, res) => {
     }
 
     res.status(200).json(deckData);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json(err);
-  }
-});
-
-router.post('/:id/weakness', async (req, res) => {
-  try {
-    const deckId = req.params.id;
-    const { messages } = req.body;
-
-    const data = {'id': deckId, 'messages': messages};
-
-    // store current result
-    const webhookUrl = 'http://n8n:5678/webhook/weakness';
-    
-    console.log('Forwarding chat to webhook...');
-    const response = await axios.post(webhookUrl, data, {
-      timeout: 30000 // 30 second timeout
-    });
-
-    console.log('Webhook response:', response.status, response.data);
-    res.status(200);
   } catch (err) {
     console.error(err);
     res.status(500).json(err);

@@ -18,10 +18,10 @@
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.7,
       "position": [
-        1040,
-        -60
+        200,
+        260
       ],
-      "id": "4bcc389c-0192-49c7-96b9-c65caae759d8",
+      "id": "a69d9c30-1b10-407e-bfef-3c9c0e434352",
       "name": "Basic LLM Chain"
     },
     {
@@ -37,14 +37,14 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
       "typeVersion": 1.3,
       "position": [
-        1040,
-        120
+        200,
+        440
       ],
-      "id": "e7e930b1-2873-4f03-92f6-7961a5aae011",
+      "id": "daab5415-ba3c-404c-8a8c-5df68e2b2985",
       "name": "Anthropic Chat Model",
       "credentials": {
         "anthropicApi": {
-          "id": "SPLBD7pfrDx1wSgH",
+          "id": "ksasmYksdPDtECBZ",
           "name": "Anthropic account"
         }
       }
@@ -61,10 +61,10 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        -220,
-        -100
+        -1060,
+        220
       ],
-      "id": "fa2e8f9b-b834-4d3c-a1f1-04e5e8210cee",
+      "id": "b5029189-429d-4dfd-8061-12f8bffd0b6d",
       "name": "Webhook",
       "webhookId": "c402fd6f-f1e1-4edb-84cf-4c448e71569a"
     },
@@ -77,10 +77,10 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.4,
       "position": [
-        2260,
-        -60
+        1420,
+        260
       ],
-      "id": "1d34fb90-6d3c-499b-b71a-bbba10404c7d",
+      "id": "913be8a9-4f51-4a89-96a6-7e717cd3307c",
       "name": "Respond to Webhook"
     },
     {
@@ -100,10 +100,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        840,
-        260
+        0,
+        580
       ],
-      "id": "e8470325-a90e-4eae-8eb5-d09f1bb3953a",
+      "id": "c6c8f92f-9d4f-407c-94e5-d1019c30cef9",
       "name": "Invalid Input"
     },
     {
@@ -123,10 +123,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        20,
-        -100
+        -820,
+        220
       ],
-      "id": "221e9b71-88bf-4f86-82d8-8cb210b2c65c",
+      "id": "4dee1c96-e614-4918-90da-14b354aed929",
       "name": "initial vars"
     },
     {
@@ -156,10 +156,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        500,
-        -200
+        -340,
+        120
       ],
-      "id": "0f89d684-9152-426d-b546-944123678ddf",
+      "id": "58764f42-2f99-43b6-ab46-3758e439d7d4",
       "name": "environment check"
     },
     {
@@ -190,10 +190,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        220,
-        -100
+        -620,
+        220
       ],
-      "id": "e420f10f-5a28-4edc-a7ed-b3132be45a86",
+      "id": "0bbcd449-ef04-4961-9113-ed3538bddda5",
       "name": "input present",
       "notesInFlow": false
     },
@@ -206,10 +206,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        840,
-        -320
+        0,
+        0
       ],
-      "id": "5f3a74fa-2243-49fc-bc68-d7503d7ab2a6",
+      "id": "1db151cd-7b24-4d7e-a5b2-8335a59cf427",
       "name": "debug values"
     },
     {
@@ -248,10 +248,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        840,
-        -60
+        0,
+        260
       ],
-      "id": "6d22ae07-7c7c-4082-9266-225ae76d8aff",
+      "id": "2fc3cd5f-69a7-4e63-ba98-b8c870c98dcb",
       "name": "extract Q & A"
     },
     {
@@ -261,10 +261,10 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.3,
       "position": [
-        1200,
-        120
+        360,
+        440
       ],
-      "id": "ebb7fb7a-4119-427a-b7c1-2b5dafa7dce7",
+      "id": "3e00df5c-0716-464a-97bd-d2d5fe0979c7",
       "name": "Structured Output Parser"
     },
     {
@@ -276,10 +276,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1400,
-        -60
+        560,
+        260
       ],
-      "id": "1ea63800-b8b2-4bc6-927e-53e27ee14475",
+      "id": "164e46cb-41a0-4038-b9d2-fc776f1e08d0",
       "name": "format for web-hook response"
     },
     {
@@ -291,10 +291,10 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.4,
       "position": [
-        2260,
-        260
+        1420,
+        580
       ],
-      "id": "2662e1cf-4ba2-4e4d-beae-1165d8c05995",
+      "id": "33c640f8-5b09-4e5b-a19b-56b7b8887635",
       "name": "Respond to Webhook1"
     }
   ],
@@ -434,22 +434,17 @@
           }
         ]
       ]
-    },
-    "Respond to Webhook1": {
-      "main": [
-        []
-      ]
     }
   },
   "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "bbc2a4ef-2d50-4996-9d16-03b66dcdcf1d",
+  "versionId": "0e9274c0-f977-436b-ab15-b91dafa4e61b",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "e057fe4b559f465360e2e60b420b9b43619c1b1716a0993931ca0ddf89b6dca9"
+    "instanceId": "58372434a2f72b44f89835f77ca2cc9d557f4359b8fe4e69017475e11efa5fab"
   },
-  "id": "SRyoCRiyQZLZTubN",
+  "id": "EcJTmCU3uMFYc0o2",
   "tags": []
 }

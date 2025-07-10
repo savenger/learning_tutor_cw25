@@ -65,8 +65,8 @@ export const getNextUnseenCard = async (deckId: number) => {
 };
 
 // Post chat to store weakness
-export const postChat = async (deckId: number, messages: ChatMessage[]) => {
-  return fetchData<Flashcard>(`${BASE_URL}/decks/${deckId}/weakness`, 'POST', {messages});
+export const postChat = async (id: number, messages: ChatMessage[], solution: string) => {
+  return fetchData<Flashcard>(`${BASE_URL}/flashcards/${id}/weakness`, 'POST', {messages, solution});
 };
 
 // Reset all cards in a deck to unseen
