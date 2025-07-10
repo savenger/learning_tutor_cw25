@@ -55,6 +55,7 @@ services:
       - n8n_data:/home/node/.n8n
     depends_on:
       - graphiti-mcp
+      - psql_n8n
 
   # graph:
   #   image: zepai/graphiti:latest
