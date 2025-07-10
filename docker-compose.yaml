@@ -97,6 +97,11 @@ services:
       - "8000:8000" # Expose the MCP server via HTTP for SSE transport
     command: ["uv", "run", "graphiti_mcp_server.py", "--transport", "sse"]
   
+  search-mcp:
+    build: search_mcp
+    environment:
+      - SERPER_KEY=${SERPER_KEY}
+
   neo4j:
     image: neo4j:5.26.0
     
