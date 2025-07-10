@@ -1,18 +1,20 @@
 {
-  "name": "Feedback",
+  "name": "feedback",
   "nodes": [
     {
       "parameters": {
-        "path": "07e41a37-07e7-44c5-a5ab-d797990c7667",
+        "httpMethod": "POST",
+        "path": "feedback",
+        "responseMode": "responseNode",
         "options": {}
       },
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        -208,
+        0,
         0
       ],
-      "id": "d5d74dcc-6b46-45f2-a32b-cd2c8005b3fb",
+      "id": "1d06ff2c-6832-4d92-9fcf-c4229dde069f",
       "name": "Webhook",
       "webhookId": "07e41a37-07e7-44c5-a5ab-d797990c7667"
     },
@@ -27,10 +29,10 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 2.1,
       "position": [
-        16,
+        224,
         0
       ],
-      "id": "50c35c0e-6b49-4b91-8502-c4e162b9d300",
+      "id": "614b06fd-f36d-4e4c-9677-8e974b4bddf4",
       "name": "AI Agent"
     },
     {
@@ -45,32 +47,33 @@
       "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
       "typeVersion": 1,
       "position": [
-        208,
+        416,
         208
       ],
-      "id": "e179db56-4628-45c0-b7ef-4f4a3934cdf3",
+      "id": "416131b8-883f-41af-9793-c2044473f4fb",
       "name": "MCP Client"
     },
     {
       "parameters": {
         "model": {
           "__rl": true,
+          "value": "gpt-4o-mini",
           "mode": "list",
-          "value": "gpt-4.1-mini"
+          "cachedResultName": "gpt-4o-mini"
         },
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.2,
       "position": [
-        16,
+        224,
         208
       ],
-      "id": "697493bb-ec74-4da1-ad0a-f4b326777d0c",
+      "id": "3f3915c7-547d-4950-b856-9508cfda050d",
       "name": "OpenAI Chat Model",
       "credentials": {
         "openAiApi": {
-          "id": "b8WNbDFYnfzq5Cic",
+          "id": "PDTC6OAqEMb8Vgfj",
           "name": "OpenAi account"
         }
       }
@@ -84,10 +87,10 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.4,
       "position": [
-        368,
+        576,
         0
       ],
-      "id": "d3e2a502-639a-40e8-a8ac-1b700a768011",
+      "id": "2edb8a3e-a3fe-4151-b115-380f029da2ea",
       "name": "Respond to Webhook"
     }
   ],
@@ -148,15 +151,15 @@
       ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "bcff04b1-1977-40d0-a4a6-a278c796a6e5",
+  "versionId": "8e3cd871-86e5-4ca4-9735-100eef63c131",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "427d115aa44fde43cc4dfa6d27acc9d6e385112c0d4fc9eb1827fb04ee64f691"
+    "instanceId": "12f13ca9cbb9f197fb6db79405d0185629831f9abcdf7768946d944fc40f8cc9"
   },
-  "id": "oz8vvSDDlN0G7Rnr",
+  "id": "7CApWRxmjzNdRTY5",
   "tags": []
 }

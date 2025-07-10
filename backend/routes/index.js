@@ -5,6 +5,7 @@ const FormData = require('form-data');
 const deckRoutes = require('./deck');
 const flashcardRoutes = require('./flashcard');
 const flashcardAnswerRoutes = require('./flashcardanswer');
+const { Deck, Flashcard, sequelize } = require('../models');
 
 // Configure multer for file uploads
 const storage = multer.memoryStorage();
@@ -23,31 +24,57 @@ router.use('/flashcardanswers', flashcardAnswerRoutes);
 // Feedback & Recommendations route
 router.get('/feedback', async (req, res) => {
   try {
-    // Mock feedback data - in a real app, this would analyze user's learning patterns
-    const mockFeedback = [
-      "Great job on your recent study sessions! You've been consistently practicing your flashcards, which is key to long-term retention.",
-      "I noticed you're spending more time on certain topics. Consider breaking down complex concepts into smaller, more manageable flashcards.",
-      "Your accuracy has improved by 15% over the past week. Keep up the excellent work!",
-      "You tend to study better in the evening hours. Try to maintain this schedule for optimal learning.",
-      "Consider reviewing cards you got wrong more frequently. Spaced repetition of challenging material will help reinforce your memory.",
-      "You're doing well with factual recall. Try adding more conceptual questions to deepen your understanding.",
-      "Your study streak is impressive! Consistency is one of the most important factors in successful learning.",
-      "I recommend taking short breaks between study sessions to help consolidate your memory.",
-      "You might benefit from creating flashcards that connect different topics together to build stronger knowledge networks.",
-      "Your performance suggests you're ready to tackle more advanced material in your strongest subjects."
-    ];
-
-    // Select a random feedback message
-    const randomFeedback = mockFeedback[Math.floor(Math.random() * mockFeedback.length)];
+    const [results] = await sequelize.query(`
+      SELECT name
+      FROM "Decks";
+    `);
     
-    res.json({ 
-      feedback: randomFeedback,
+    if (!results.length) {
+      res.status(404).json({ message: 'No decks found!' });
+      return;
+    }
+
+    console.log(results);
+    const webhookUrl = 'http://n8n:5678/webhook/feedback';
+    let feedback = '';
+
+    // Use Promise.all to wait for all webhook calls
+    const webhookPromises = results.map(async (result) => {
+      try {
+        const formData = new FormData();
+        formData.append('deck_title', result.name);
+        
+        console.log(result.name);
+        console.log('Forwarding file to webhook...');
+        
+        const response = await axios.post(webhookUrl, formData, {
+          headers: {
+            ...formData.getHeaders(),
+          },
+          timeout: 30000
+        });
+        
+        return result.name.toUpperCase() + ": " + response.data + "\n\n";
+      } catch (error) {
+        console.error(`Webhook error for ${result.name}:`, error);
+        return result.name.toUpperCase() + ": Error generating feedback\n\n";
+      }
+    });
+
+    // Wait for all webhook calls to complete
+    const feedbackParts = await Promise.all(webhookPromises);
+    feedback = feedbackParts.join('');
+
+    console.log(feedback);
+    res.json({
+      feedback: feedback,
       timestamp: new Date().toISOString()
     });
+    
   } catch (error) {
     console.error('Error generating feedback:', error);
-    res.status(500).json({ 
-      error: 'Failed to generate feedback recommendations' 
+    res.status(500).json({
+      error: 'Failed to generate feedback recommendations'
     });
   }
 });
