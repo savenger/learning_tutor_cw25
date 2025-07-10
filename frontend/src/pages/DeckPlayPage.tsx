@@ -153,6 +153,11 @@ const DeckPlayPage: React.FC = () => {
       setError(error);
     }
     
+    // If user has chatted with AI, post the chat before skipping
+    if (chatMessages.length > 0) {
+      await postChat(currentCard.id, chatMessages, currentCard.answer);
+    }
+    
     // Move to next card
     await handleNextCard();
   };
