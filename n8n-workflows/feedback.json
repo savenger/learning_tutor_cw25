@@ -1,0 +1,162 @@
+{
+  "name": "Feedback",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "07e41a37-07e7-44c5-a5ab-d797990c7667",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -208,
+        0
+      ],
+      "id": "d5d74dcc-6b46-45f2-a32b-cd2c8005b3fb",
+      "name": "Webhook",
+      "webhookId": "07e41a37-07e7-44c5-a5ab-d797990c7667"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.deck_title }}",
+        "options": {
+          "systemMessage": "You are supposed to give the user a summary of his weaknesses regarding a certain topic so that the user knows what to study best. You have access to tools that search through a graph in which all weaknesses and knowledge gaps of a user are stored. So the tools will return weaknesses only. \n\nGive three tipps on what the user should study and why and be positive."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        16,
+        0
+      ],
+      "id": "50c35c0e-6b49-4b91-8502-c4e162b9d300",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "sseEndpoint": "http://graphiti-mcp:8000/sse",
+        "include": "selected",
+        "includeTools": [
+          "search_memory_facts",
+          "search_memory_nodes"
+        ]
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1,
+      "position": [
+        208,
+        208
+      ],
+      "id": "e179db56-4628-45c0-b7ef-4f4a3934cdf3",
+      "name": "MCP Client"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        16,
+        208
+      ],
+      "id": "697493bb-ec74-4da1-ad0a-f4b326777d0c",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "b8WNbDFYnfzq5Cic",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        368,
+        0
+      ],
+      "id": "d3e2a502-639a-40e8-a8ac-1b700a768011",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "body": {
+            "deck_title": "Python"
+          }
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c0ca15fc-0c31-4659-9f40-68b3764dcb70",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "427d115aa44fde43cc4dfa6d27acc9d6e385112c0d4fc9eb1827fb04ee64f691"
+  },
+  "id": "oz8vvSDDlN0G7Rnr",
+  "tags": []
+}
