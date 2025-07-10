@@ -1,0 +1,516 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-3-7-sonnet-20250219",
+          "mode": "list",
+          "cachedResultName": "Claude Sonnet 3.7"
+        },
+        "options": {
+          "maxTokensToSample": 40000
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        -560,
+        320
+      ],
+      "id": "39e1872d-c8b6-4ee4-8bd4-370ebc5c6c96",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "c9IOGz9L0GHSVsoT",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "=define",
+        "text": "=This is the file:\n<file>\n{{ $json.text }}\n</file>\n\nYou are a note-taking agent that helps the user to do the following tasks after another, based on a given file. Please perform the following tasks: \n\nFirstly summarise and breakdown the content into distinct topics and provide 3 bulletpoints  with important information of each topic in note form. Please provide the information if available like title, Author, Year of publication, Magazine or platform with a link to the source like a doi.\n\nThen, generate a Question for each bulletpoint of every topic.\n\nPlease output only JSON. The result is an array of objects containing the topics and their corresponding question and answer pairs. \n\nPlease follow exactly the structure of this example and do not add additional properties:\n\n{\n   source_metadata: {\n       title: ...,\n       authors: ...,\n       year_of_publication: ...,\n       journal: ..., // optional\n       doi: ... // optional\n   },\n   qa_pairs: [\n       {\n             question: <questions>,\n             answer: <answer>\n    }\n   ]\n}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -512,
+        -208
+      ],
+      "id": "040cec1e-0da4-4d5a-8842-fcec0644939f",
+      "name": "AI Agent 1"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "knowledge",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -992,
+        -208
+      ],
+      "id": "cd55c858-77a0-4418-b64f-1614bcab81e7",
+      "name": "Webhook",
+      "webhookId": "427884fe-f024-46a9-bcc4-a54a2af4c8e0"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "file",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -736,
+        -208
+      ],
+      "id": "736beaeb-cd40-45a3-be32-1cf8cfd497ec",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "\n{\n   \"title\": \"History of Rome\",\n   \"description\": \"A deep dive into the history of rome and how it shaped our world\",\n   \"questions\": [\n     \"Who was the first emperor of Rome\",\n     \"Who was the first emperor of Rome\"\n   ],\n   \"answers\": [\"Augustus\", \"Augustus\"]\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -368,
+        80
+      ],
+      "id": "e864882b-f746-4175-a561-c0836c492bae",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "Flashcards",
+          "mode": "list",
+          "cachedResultName": "Flashcards"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "seen": false,
+            "question": "={{ $json.question }}",
+            "answer": "={{ $json.answer }}",
+            "deckId": "={{ $json.deckId }}",
+            "createdAt": "={{ $now }}",
+            "updatedAt": "={{ $now }}\n"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "question",
+              "displayName": "question",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "answer",
+              "displayName": "answer",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "deckId",
+              "displayName": "deckId",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "seen",
+              "displayName": "seen",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "score",
+              "displayName": "score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "createdAt",
+              "displayName": "createdAt",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updatedAt",
+              "displayName": "updatedAt",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        912,
+        -16
+      ],
+      "id": "7bcdce24-bbd3-4242-b116-7c01d0adf926",
+      "name": "Insert rows in a table1",
+      "credentials": {
+        "postgres": {
+          "id": "smGLKcptFOiQoXCE",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "Decks",
+          "mode": "list",
+          "cachedResultName": "Decks"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "name": "={{ $json.output.title }}",
+            "description": "={{ $json.output.description}}",
+            "updatedAt": "={{$now}}",
+            "createdAt": "={{ $now }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "createdAt",
+              "displayName": "createdAt",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updatedAt",
+              "displayName": "updatedAt",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        96,
+        -208
+      ],
+      "id": "2a58e456-e272-4c2a-b039-1b102c6f5fbd",
+      "name": "insert_card",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "smGLKcptFOiQoXCE",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract all card data from the AI response\nconst id = $('insert_card').first().json.id\n\n// Extract all card data from the AI response\nconst aiResponse = $('AI Agent 1').first().json.output;\n\nlet i = 0;\nconst response = []\n\nfor(i = 0; i < aiResponse.questions.length; i++) {\n  response.push({\n    json: {\n      question: aiResponse.questions[i],\n      answer: aiResponse.answers[i],\n      deckId: id\n    }\n  })\n}\n\n// Return array of card objects\nreturn response\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        304,
+        -208
+      ],
+      "id": "b0b8dee4-a11f-421f-8c6e-7c614a07226c",
+      "name": "id_extractor"
+    }
+  ],
+  "pinData": {
+    "AI Agent 1": [
+      {
+        "json": {
+          "output": {
+            "title": "Reinforcement Learning: Value-function Approximation",
+            "qa_pairs": [
+              {
+                "question": "What are the main challenges addressed by Value Function Approximation in Reinforcement Learning?",
+                "answer": "Value Function Approximation addresses two main challenges: (1) dealing with large or infinite state spaces (e.g., Backgammon: 10^20 states, Computer Go: 10^170 states, continuous robot arm movements), and (2) enabling generalization across similar states to avoid learning the value of each state individually."
+              },
+              {
+                "question": "What are the key differences between exact and approximate value function representations?",
+                "answer": "Exact representations use tables with distinct values for each state (V) or state-action pair (Q), while approximate representations use function approximators (e.g., neural networks, polynomials, RBFs) to estimate values. Approximation requires storing only the parameters rather than all state values, but convergence properties no longer hold."
+              },
+              {
+                "question": "How do feature vectors help in Value Function Approximation?",
+                "answer": "Feature vectors transform states into real numbers that capture important properties of the state. Examples for Pac-Man might include distance to closest ghost, distance to closest dot, and number of ghosts. These features enable the function approximator to generalize across similar states."
+              },
+              {
+                "question": "What is the goal of learning parameters in linear Value Function Approximation?",
+                "answer": "The goal is to learn parameters w that minimize the difference between the true value function and the approximation. This is typically done by minimizing the cost function C = (Q+(s,a) - φ(s,a)^T w)^2 using gradient descent updates to adjust the weights."
+              },
+              {
+                "question": "What are some example feature types used in linear Value Function Approximation?",
+                "answer": "Linear Value Function Approximation can use various feature types including: Polynomial Basis (transforming inputs into polynomial combinations), Fourier Basis (using cosine functions), and Tile Coding (partitioning the state space into overlapping tiles)."
+              },
+              {
+                "question": "How does Tile Coding work as a feature type in Value Function Approximation?",
+                "answer": "Tile Coding partitions the state space into overlapping tilings, where each tiling is offset from others. Within each tiling, states are grouped into tiles, and a state activates one tile per tiling. This creates a sparse representation that allows for generalization, with asymmetrically offset tilings providing more uniform generalization than uniformly offset tilings."
+              },
+              {
+                "question": "What are the convergence properties of different control algorithms with various value function approximation methods?",
+                "answer": "With table lookup, both Monte-Carlo Control and SARSA converge to the optimal value function, while Q-learning converges to the optimal value function as well. With linear approximation, Monte-Carlo Control and SARSA converge near the optimal value function but may chatter around it, while Q-learning does not converge. With non-linear approximation, none of the algorithms are guaranteed to converge."
+              },
+              {
+                "question": "What are the two important questions about Value Function Approximation discussed in the lecture?",
+                "answer": "1. Can we approximate any V-/Q-value function with a linear function approximator? (Answer: Yes, though the proof is outside the scope of the class). 2. Is it easy to find such a linear function approximator? (Answer: Sometimes yes, but often no, especially for complex problems like Tetris, Ms. Pac-Man, and Inverted Pendulum)."
+              },
+              {
+                "question": "Why is it challenging to apply neural networks directly to Reinforcement Learning?",
+                "answer": "Theory indicates neural networks don't work well with RL due to instability and divergence issues. While linear approximation often converges (or near-converges), non-linear approximation like neural networks don't have convergence guarantees. However, some successes like TD-Gammon (backgammon player) showed neural networks could work in specific carefully tuned implementations."
+              },
+              {
+                "question": "What was the breakthrough achievement of Deep Q-Networks (DQN) by DeepMind?",
+                "answer": "DQN from DeepMind (later Google DeepMind) represented a breakthrough by surpassing human players in 49 Atari 2600 games using the same reinforcement learning algorithm for all games. The system learned end-to-end from raw pixel inputs, and this achievement initiated significant investment in reinforcement learning research."
+              },
+              {
+                "question": "What are the key components of a Deep Q-Network (DQN)?",
+                "answer": "A DQN uses a convolutional neural network to read image frames (typically a stack of the last 4 frames) and approximate the Q(s,a) function. The reward is derived from the game score, and network weights are tuned using backpropagation. The objective function minimizes the difference between predicted Q-values and target values: L(wi) = E[(yi - Q(s,a,w))²]."
+              },
+              {
+                "question": "What tricks are used to stabilize DQN learning?",
+                "answer": "Three key tricks stabilize DQN learning: 1) Experience Replay - storing and randomly sampling past experiences to break correlations and increase data efficiency, 2) Separate frozen target Q-network - reducing oscillations by having fixed targets that are periodically updated, 3) Reward clipping - normalizing rewards to a range [-1.0, 1.0] to prevent large variances in Q-values."
+              },
+              {
+                "question": "What is Double DQN (DDQN) and how does it improve upon the original DQN?",
+                "answer": "Double DQN addresses the upward positive bias (overestimation of Q-values) in regular DQN by separating action selection and evaluation. It uses the main Q-network to select actions (argmax) but the target Q-network to evaluate those actions. This reduces overestimation and improves performance."
+              },
+              {
+                "question": "How does Prioritized Experience Replay enhance DQN performance?",
+                "answer": "Prioritized Experience Replay improves on the uniform sampling of experience replay by prioritizing experiences with higher absolute Bellman error (|δ|). This focuses learning on the most informative experiences, as some retain more valuable information than others, leading to much faster learning."
+              },
+              {
+                "question": "What is the Dueling Architecture in DQNs and how does it work?",
+                "answer": "The Dueling Architecture splits the Q-network into two channels: an action-independent value function V(s;v) and an action-dependent advantage function A(s,a;w). These are combined as Q(s,a;θ,α,β) = V(s;θ,β) + (A(s,a;θ,α) - (1/|A|)∑a'A(s,a';θ,α)), allowing the network to learn which states are valuable without having to learn the effect of each action."
+              },
+              {
+                "question": "What is a Deep Recurrent Q-Learning Network (DRQN) and when should it be used?",
+                "answer": "DRQNs incorporate recurrent neural networks (LSTM) instead of using frame stacking to handle partial observability in POMDPs. While DQNs use multiple frames to estimate hidden state information (e.g., ball velocity in Pong), DRQNs can maintain this information internally. DRQNs should only be used for true POMDP problems as they add significant training complexity."
+              },
+              {
+                "question": "What is the \"Deadly Triad\" in Reinforcement Learning and why is it problematic?",
+                "answer": "The Deadly Triad refers to three elements that together cause instability in RL: 1) Function Approximation, 2) Bootstrapping, and 3) Off-policy training. When all three are combined (as is often the case in practice), they can lead to instability and divergence in learning."
+              },
+              {
+                "question": "What are Fuzzy Tiling Activations (FTA) and how do they help with the stability issues in DQNs?",
+                "answer": "Fuzzy Tiling Activations (FTA) are special activation functions that produce sparse representations. Unlike standard activations that map scalars to scalars, FTA maps scalars to vectors, creating sparse encodings. This sparsity helps reduce the impact of updates to particular Q-values on nearby Q-values, potentially reducing the need for target networks by addressing the non-stationarity of Q-targets."
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "insert_card": [
+      {
+        "json": {
+          "id": 8,
+          "name": "Reinforcement Learning - Value-function Approximation",
+          "description": "This lecture covers value function approximation methods in reinforcement learning, including linear and non-linear approximation techniques, Deep Q-Networks (DQNs), and stability challenges in reinforcement learning.",
+          "createdAt": "2025-07-10T14:39:51.500Z",
+          "updatedAt": "2025-07-10T14:39:51.499Z"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent 1",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent 1",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "AI Agent 1": {
+      "main": [
+        [
+          {
+            "node": "insert_card",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "AI Agent 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent 1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "insert_card": {
+      "main": [
+        [
+          {
+            "node": "id_extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "id_extractor": {
+      "main": [
+        [
+          {
+            "node": "Insert rows in a table1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "539df357-5c61-4482-8ba3-226c883d4666",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ee648ac50ddb221c57c06a3e349690fa53d0891d26568573d582876b2b738ebb"
+  },
+  "id": "9blrjDfSO0ppoTwq",
+  "tags": []
+}
