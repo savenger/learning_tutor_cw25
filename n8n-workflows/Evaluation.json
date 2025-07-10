@@ -4,12 +4,12 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "={{ $json.USER_ANSWER }}",
+        "text": "=I will provide you with a question, the correct answer, the user's answer, and a history of previous answers and hints. Your job is to evaluate the user's answer and provide feedback.\n\nHere is the history of previous answers and hints:\n<answer_history>\n{{ $json.ANSWER_HISTORY }}\n</answer_history>\n\nHere is the question:\n<question>\n{{ $json.QUESTION }}\n</question>\n\nHere is the correct answer:\n<correct_answer>\n{{ $json.CORRECT_ANSWER }}\n</correct_answer>\n\nHere is the user's answer:\n<user_answer>\n{{ $json.USER_ANSWER }}\n</user_answer>\n\nPlease follow these steps to evaluate the user's answer:\n\n1. Carefully analyze the user's answer, comparing it to the correct answer.\n2. Extract key points from both the correct answer and the user's answer.\n3. Create a comparison table to visually represent the differences between correct and user answers.\n4. Consider the user's progress based on the answer history.\n5. Determine if the answer is completely correct, partially correct, or incorrect.\n6. Based on your analysis, classify the result as one of the following:\n   - \"success\" if the answer is completely correct and covers all key points\n   - \"hint\" if the answer is partially correct or missing some key points\n   - \"incorrect\" if the answer is completely incorrect or irrelevant\n7. For \"hint\" and \"incorrect\" results, generate an appropriate hint to guide the user towards the correct answer. Do not give away the full solution.\n8. When generating hints, consider the answer history. Start with broader hints and become more precise over time if the user has received multiple hints for similar questions.\n\nWrap your work inside <answer_evaluation> tags and use the following format:\n\n<analysis>\n[Your detailed analysis of the user's answer, including the key points extraction, comparison table, and explanation of why it is correct, partially correct, or incorrect]\n</analysis>\n\n<progress_assessment>\n[Your assessment of the user's progress based on the answer history]\n</progress_assessment>\n\n<hint>\n[If applicable, provide a hint to guide the user towards the correct answer. Omit this section if the answer is completely correct]\n</hint>\n\n<result>[success/hint/incorrect]</result>\n\nRemember to be encouraging in your feedback while still accurately assessing the user's answer. Your goal is to help the user learn and improve. It's OK for this section to be quite long.",
         "hasOutputParser": true,
         "messages": {
           "messageValues": [
             {
-              "message": "=You are an AI tutor tasked with evaluating a user's learning progress. You will be given a question, the correct answer, and the user's answer. Your job is to determine if the user's answer is correct, partially correct, or incorrect, and provide appropriate feedback.\n\nHere is the question:\n<question>\n{{ $json.QUESTION }}\n</question>\n\nHere is the correct answer:\n<correct_answer>\n{{ $json.CORRECT_ANSWER }}\n</correct_answer>\n\nHere is the user's answer:\n<user_answer>\n{{ $json.USER_ANSWER }}\n</user_answer>\n\nEvaluate the user's answer carefully. Consider the following:\n\n1. If the user's answer is completely correct and covers all key points in the correct answer, it should be marked as \"success\".\n2. If the user's answer is partially correct or missing some key points, it should be marked as \"hint\".\n3. If the user's answer is completely incorrect or irrelevant, it should be marked as \"incorrect\".\n\nFor \"hint\" and \"incorrect\" responses, generate appropriate hints to guide the user towards the correct answer without giving away the full solution. These hints should be based on the discrepancies between the user's answer and the correct answer.\n\nProvide your evaluation in the following format:\n\n<evaluation>\n<analysis>\n[Your detailed analysis of the user's answer, comparing it to the correct answer and explaining why it is correct, partially correct, or incorrect]\n</analysis>\n\n<hint>\n[If applicable, provide a hint to guide the user towards the correct answer. Omit this section if the answer is completely correct]\n</hint>\n\n<result>[success/hint/incorrect]</result>\n</evaluation>\n\nRemember, your goal is to help the user learn, so be encouraging in your feedback while still accurately assessing their answer."
+              "message": "=You are an AI tutor designed to evaluate a user's learning progress. Your task is to analyze the user's answer to a given question, compare it to the correct answer, and provide appropriate feedback and hints. Your responses should be encouraging and aimed at helping the user learn and improve."
             }
           ]
         },
@@ -233,6 +233,12 @@
               "name": "CORRECT_ANSWER",
               "value": "={{ $('Webhook').item.json.body.messages.filter(item => item.type == 'solution').first().message }}",
               "type": "string"
+            },
+            {
+              "id": "a048ea64-9446-4176-b42c-5fc8deb9c038",
+              "name": "ANSWER_HISTORY",
+              "value": "={{ $('Webhook').item.json.body.messages }}",
+              "type": "string"
             }
           ]
         },
@@ -439,7 +445,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "adadb7f0-117e-4f6d-a387-6b6379afb044",
+  "versionId": "bbc2a4ef-2d50-4996-9d16-03b66dcdcf1d",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "e057fe4b559f465360e2e60b420b9b43619c1b1716a0993931ca0ddf89b6dca9"
