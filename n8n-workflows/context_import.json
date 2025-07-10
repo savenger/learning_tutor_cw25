@@ -1,0 +1,343 @@
+{
+  "name": "context_import",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "// Extract all card data from the AI response\nconst aiResponse = $('Message a model1').item.json.message.content;\nconst deckId = $('Insert rows in a table3').item.json.id;\n\n// Find all card entries in the response\nconst cards = [];\nlet cardIndex = 1;\n\nwhile (aiResponse[`Card_${cardIndex}`]) {\n  const card = aiResponse[`Card_${cardIndex}`];\n  cards.push({\n    deck_id: deckId,\n    question: card.Q,\n    answer: card.A\n  });\n  cardIndex++;\n}\n\n// Return array of card objects\nreturn cards.map(card => ({ json: card }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        240
+      ],
+      "id": "fae69c6d-90bd-4c52-883f-f346cce7dfa0",
+      "name": "Extract Cards"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "Flashcards",
+          "mode": "list",
+          "cachedResultName": "Flashcards"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "deckId": "={{ $json.deck_id }}",
+            "question": "={{ $json.question }}",
+            "answer": "={{ $json.answer }}",
+            "createdAt": "={{ $now }}",
+            "updatedAt": "={{ $now }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "question",
+              "displayName": "question",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "answer",
+              "displayName": "answer",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "deckId",
+              "displayName": "deckId",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "seen",
+              "displayName": "seen",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "score",
+              "displayName": "score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "createdAt",
+              "displayName": "createdAt",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updatedAt",
+              "displayName": "updatedAt",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1040,
+        240
+      ],
+      "id": "4d2f0e4d-8858-45ea-8122-4cbef937b152",
+      "name": "Insert Cards",
+      "credentials": {
+        "postgres": {
+          "id": "VNk8LXOra2ERfxFz",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4-turbo",
+          "mode": "list",
+          "cachedResultName": "GPT-4-TURBO"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Extract 5 question and answer pairs from the text below. Each question should focus on a distinct, meaningful point from the text, and each answer should be specific, accurate, and derived only from the content provided. Avoid yes/no questions unless contextually necessary. When text is surrounded by <important> tags ask about these facts first.\nDont ask specific question about what is mentioned in the text, but about the topic that is discussed in the text.\n\nText:\n{{ $json.body.text }}\n\nOutput format:\n    \"Topic\": [overarching_topic],\n    \"Card_1\": {\n      \"Q\": [Question_1],\n      \"A\": [Answer_1]\n    },\n    \"Card_2\": {\n      \"Q\": [Question_2],\n      \"A\": [Answer_2]\n    },\n    \"Card_3\": {\n      \"Q\": [Question_3],\n      \"A\": [Answer_3]\n    },\n    \"Card_4\": {\n      \"Q\": [Question_4],\n      \"A\": [Answer_4]\n    },\n    \"Card_5\": {\n      \"Q\": [Question_5],\n      \"A\": [Answer_5]\n    }\n... and so on."
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        208,
+        240
+      ],
+      "id": "294cf4fa-39ef-4c62-8edc-537b74f1e004",
+      "name": "Message a model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "B5zyomPSBTSYpGHb",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "value": "public",
+          "mode": "list",
+          "cachedResultName": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "Decks",
+          "mode": "list",
+          "cachedResultName": "Decks"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "name": "={{ $json.message.content.Topic }}",
+            "createdAt": "={{ $now }}",
+            "updatedAt": "={{ $now }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "createdAt",
+              "displayName": "createdAt",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updatedAt",
+              "displayName": "updatedAt",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        560,
+        240
+      ],
+      "id": "a0c29b42-fab9-4657-9ddc-de8483de8151",
+      "name": "Insert rows in a table3",
+      "credentials": {
+        "postgres": {
+          "id": "VNk8LXOra2ERfxFz",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "create-deck",
+        "options": {
+          "allowedOrigins": "*",
+          "rawBody": true
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        240
+      ],
+      "id": "d7da014a-5a26-4e64-8115-9aa7eeaee1cb",
+      "name": "Webhook",
+      "webhookId": "3582ce39-9b4c-4136-b8c9-f7875c9ce98b"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Extract Cards": {
+      "main": [
+        [
+          {
+            "node": "Insert Cards",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model1": {
+      "main": [
+        [
+          {
+            "node": "Insert rows in a table3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert rows in a table3": {
+      "main": [
+        [
+          {
+            "node": "Extract Cards",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Message a model1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1be87867-f435-4548-adbe-a1768bd944a2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2dde770f3b75a1e048d658932d5eb411a8b21e77f7bfba69449c84c129c24a26"
+  },
+  "id": "EniEqj5PcNBFAf4h",
+  "tags": []
+}
