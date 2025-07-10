@@ -27,8 +27,14 @@ const seedDatabase = async () => {
     // Create Flashcards for Deck 1 (Biology Basics)
     await Flashcard.bulkCreate([
       {
-        question: 'What is the powerhouse of the cell?',
-        answer: 'Mitochondria',
+        question: 'What is the powerhouse of the cell and what does it do?',
+        answer: `The powerhouse of the cell is the mitochondrion (plural: mitochondria).
+What it does:
+Produces energy: Mitochondria generate the cell’s energy by converting nutrients (like glucose) into ATP (adenosine triphosphate) through a process called cellular respiration.
+ATP is the main energy currency of the cell, used for everything from muscle contraction to active transport across cell membranes.
+Bonus facts:
+Mitochondria have their own DNA and can replicate independently of the cell.
+They're especially abundant in energy-demanding cells, like muscle or nerve cells.`,
         deckId: deck1.id,
       },
       {
