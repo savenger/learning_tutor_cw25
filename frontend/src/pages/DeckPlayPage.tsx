@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { FaArrowRight, FaForward, FaRedo, FaSyncAlt, FaTimesCircle } from 'react-icons/fa';
 import { useParams } from 'react-router-dom';
-import { getDeckById, getNextUnseenCard, getUnseenCardCount, resetDeckCards, skipFlashcard, validateFlashcardAnswer } from '../api/api';
+import { getDeckById, getNextUnseenCard, getUnseenCardCount, postChat, resetDeckCards, skipFlashcard, validateFlashcardAnswer } from '../api/api';
 import Button from '../components/Button';
 import Container from '../components/Container';
 import FlashcardChat from '../components/FlashcardChat';
@@ -43,6 +43,12 @@ const DeckPlayPage: React.FC = () => {
       console.error('Failed to fetch card progress:', error);
     }
   }, [deckId]);
+
+  const postUserChat = async () => {
+    setLoadingNextCard(true);
+    setError(null);
+    await postChat(deckId, chatMessages);
+  };
 
   const fetchNextCard = useCallback(async () => {
     setLoadingNextCard(true);
@@ -309,7 +315,7 @@ const DeckPlayPage: React.FC = () => {
                   <FaRedo className="mr-2" /> Try Again
                 </Button>
                 <Button
-                  onClick={handleNextCard}
+                  onClick={() => {handleNextCard(); postUserChat()}}
                   variant="primary"
                   className="flex items-center"
                   disabled={loadingNextCard}

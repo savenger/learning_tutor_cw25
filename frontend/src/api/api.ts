@@ -1,4 +1,4 @@
-import { Deck, Flashcard, FlashCardAnswer, FlashCardValidationResponse, FlashCardSession } from "../types";
+import { Deck, Flashcard, FlashCardAnswer, FlashCardValidationResponse, FlashCardSession, ChatMessage } from "../types";
 
 const BASE_URL = 'http://localhost:3001/api';
 
@@ -62,6 +62,11 @@ export const deleteDeck = async (id: number) => {
 // Get next unseen card from a deck
 export const getNextUnseenCard = async (deckId: number) => {
   return fetchData<Flashcard>(`${BASE_URL}/decks/${deckId}/next-card`);
+};
+
+// Post chat to store weakness
+export const postChat = async (deckId: number, messages: ChatMessage[]) => {
+  return fetchData<Flashcard>(`${BASE_URL}/decks/${deckId}/weakness`, 'POST', {messages});
 };
 
 // Reset all cards in a deck to unseen
