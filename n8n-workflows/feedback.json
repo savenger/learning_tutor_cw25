@@ -1,5 +1,5 @@
 {
-  "name": "feedback",
+  "name": "Feedback",
   "nodes": [
     {
       "parameters": {
@@ -14,16 +14,16 @@
         0,
         0
       ],
-      "id": "1d06ff2c-6832-4d92-9fcf-c4229dde069f",
+      "id": "946dca6a-a2c4-424b-b83e-5efdd9164ecd",
       "name": "Webhook",
       "webhookId": "07e41a37-07e7-44c5-a5ab-d797990c7667"
     },
     {
       "parameters": {
         "promptType": "define",
-        "text": "={{ $json.body.deck_title }}",
+        "text": "=USE EXACTLY THIS AS THE QUERY FOR THE TOOL SEARCH: {{ $json.body.deck_title }}",
         "options": {
-          "systemMessage": "You are supposed to give the user a summary of his weaknesses regarding a certain topic so that the user knows what to study best. You have access to tools that search through a graph in which all weaknesses and knowledge gaps of a user are stored. So the tools will return weaknesses only. \n\nGive three tipps on what the user should study and why and be positive."
+          "systemMessage": "You are supposed to give the user a summary of his weaknesses regarding a certain topic so that the user knows what to study best. You have access to tools that search through a graph in which all weaknesses and knowledge gaps of a user are stored. So the tools will return weaknesses only. \n\nGive one tipp on what the user should study and why and be positive. If the tool does not return any weaknesses just say \"You should be good to go!\""
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
@@ -32,7 +32,7 @@
         224,
         0
       ],
-      "id": "614b06fd-f36d-4e4c-9677-8e974b4bddf4",
+      "id": "a9fe362a-899a-4446-96b4-54e3f02062cd",
       "name": "AI Agent"
     },
     {
@@ -50,7 +50,7 @@
         416,
         208
       ],
-      "id": "416131b8-883f-41af-9793-c2044473f4fb",
+      "id": "9e3b96b5-72a2-4a40-8209-0dc49cc8f56f",
       "name": "MCP Client"
     },
     {
@@ -69,11 +69,11 @@
         224,
         208
       ],
-      "id": "3f3915c7-547d-4950-b856-9508cfda050d",
+      "id": "2a934b3c-b8a5-4887-b57e-6409a10f0762",
       "name": "OpenAI Chat Model",
       "credentials": {
         "openAiApi": {
-          "id": "PDTC6OAqEMb8Vgfj",
+          "id": "b8WNbDFYnfzq5Cic",
           "name": "OpenAi account"
         }
       }
@@ -90,7 +90,7 @@
         576,
         0
       ],
-      "id": "2edb8a3e-a3fe-4151-b115-380f029da2ea",
+      "id": "78367390-09f9-408f-8c0f-b1e44f29ec7c",
       "name": "Respond to Webhook"
     }
   ],
@@ -155,11 +155,11 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "8e3cd871-86e5-4ca4-9735-100eef63c131",
+  "versionId": "375a98ec-8f0e-4424-9dd2-79c19da058d7",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "12f13ca9cbb9f197fb6db79405d0185629831f9abcdf7768946d944fc40f8cc9"
+    "instanceId": "427d115aa44fde43cc4dfa6d27acc9d6e385112c0d4fc9eb1827fb04ee64f691"
   },
-  "id": "7CApWRxmjzNdRTY5",
+  "id": "fZWQGmfmZv21Ab34",
   "tags": []
 }
