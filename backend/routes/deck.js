@@ -125,6 +125,7 @@ router.post('/:id/reset-cards', async (req, res) => {
     // Reset all cards in this deck to unseen
     const [affectedRows] = await Flashcard.update(
       { seen: false },
+      { score: null },
       { where: { deckId: deckId } }
     );
 
