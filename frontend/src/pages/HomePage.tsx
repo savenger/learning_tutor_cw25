@@ -24,11 +24,11 @@ const HomePage: React.FC = () => {
             <FaFileUpload className="mr-3 text-2xl" /> Import Document
           </Button>
         </Link>
-        <a href="http://localhost:5173" target="_blank" rel="noopener noreferrer">
+        <Link to="/text-import">
           <Button size="lg" variant="secondary" className="flex items-center mb-4">
             <FaFileUpload className="mr-3 text-2xl" /> Import From Text
           </Button>
-        </a>
+        </Link>
         <Link to="/feedback">
           <Button size="lg" variant="success" className="flex items-center mb-4">
             <FaLightbulb className="mr-3 text-2xl" /> Get Feedback
