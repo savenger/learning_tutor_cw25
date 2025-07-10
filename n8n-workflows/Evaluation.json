@@ -4,7 +4,7 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=I will provide you with a question, the correct answer, the user's answer, and a history of previous answers and hints. Your job is to evaluate the user's answer and provide feedback.\n\nHere is the history of previous answers and hints:\n<answer_history>\n{{ $json.ANSWER_HISTORY }}\n</answer_history>\n\nHere is the question:\n<question>\n{{ $json.QUESTION }}\n</question>\n\nHere is the correct answer:\n<correct_answer>\n{{ $json.CORRECT_ANSWER }}\n</correct_answer>\n\nHere is the user's answer:\n<user_answer>\n{{ $json.USER_ANSWER }}\n</user_answer>\n\nPlease follow these steps to evaluate the user's answer:\n\n1. Carefully analyze the user's answer, comparing it to the correct answer.\n2. Extract key points from both the correct answer and the user's answer.\n3. Create a comparison table to visually represent the differences between correct and user answers.\n4. Consider the user's progress based on the answer history.\n5. Determine if the answer is completely correct, partially correct, or incorrect.\n6. Based on your analysis, classify the result as one of the following:\n   - \"success\" if the answer is completely correct and covers all key points\n   - \"hint\" if the answer is partially correct or missing some key points\n   - \"incorrect\" if the answer is completely incorrect or irrelevant\n7. For \"hint\" and \"incorrect\" results, generate an appropriate hint to guide the user towards the correct answer. Do not give away the full solution.\n8. When generating hints, consider the answer history. Start with broader hints and become more precise over time if the user has received multiple hints for similar questions.\n\nWrap your work inside <answer_evaluation> tags and use the following format:\n\n<analysis>\n[Your detailed analysis of the user's answer, including the key points extraction, comparison table, and explanation of why it is correct, partially correct, or incorrect]\n</analysis>\n\n<progress_assessment>\n[Your assessment of the user's progress based on the answer history]\n</progress_assessment>\n\n<hint>\n[If applicable, provide a hint to guide the user towards the correct answer. Omit this section if the answer is completely correct]\n</hint>\n\n<result>[success/hint/incorrect]</result>\n\nRemember to be encouraging in your feedback while still accurately assessing the user's answer. Your goal is to help the user learn and improve. It's OK for this section to be quite long.",
+        "text": "=I will provide you with a question, the correct answer, the user's answer, and a history of previous answers and hints. Your job is to evaluate the user's answer and provide feedback.\n\nHere is the history of previous answers and hints:\n<answer_history>\n{{ $json.ANSWER_HISTORY }}\n</answer_history>\n\nHere is the question:\n<question>\n{{ $json.QUESTION }}\n</question>\n\nHere is the correct answer:\n<correct_answer>\n{{ $json.CORRECT_ANSWER }}\n</correct_answer>\n\nHere is the user's answer:\n<user_answer>\n{{ $json.USER_ANSWER }}\n</user_answer>\n\nPlease follow these steps to evaluate the user's answer:\n\n1. Carefully analyze the user's answer, comparing it to the correct answer.\n2. Extract key points from both the correct answer and the user's answer.\n3. Create a comparison table to visually represent the differences between correct and user answers.\n4. Consider the user's progress based on the answer history.\n5. Determine if the answer is completely correct, partially correct, or incorrect.\n6. Based on your analysis, classify the result as one of the following:\n   - \"success\" if the answer is completely correct and covers all key points\n   - \"hint\" if the answer is partially correct or missing some key points\n   - \"incorrect\" if the answer is completely incorrect or irrelevant\n7. For \"hint\" and \"incorrect\" results, generate an appropriate hint to guide the user towards the correct answer. Do not give away the full solution.\n8. When generating hints, consider the answer history. Start with broader hints and become more precise over time if the user has received multiple hints for similar questions.\n9. When the user is providing a correct answer, use the hint field to tell the user hat they have done good.\n\nWrap your work inside <answer_evaluation> tags and use the following format:\n\n<analysis>\n[Your detailed analysis of the user's answer, including the key points extraction, comparison table, and explanation of why it is correct, partially correct, or incorrect]\n</analysis>\n\n<progress_assessment>\n[Your assessment of the user's progress based on the answer history]\n</progress_assessment>\n\n<hint>\n[If applicable, provide a hint to guide the user towards the correct answer. Use this section for a compliment if the answer is completely correct]\n</hint>\n\n<result>[success/hint/incorrect]</result>\n\nRemember to be encouraging in your feedback while still accurately assessing the user's answer. Your goal is to help the user learn and improve. It's OK for this section to be quite long.",
         "hasOutputParser": true,
         "messages": {
           "messageValues": [
@@ -18,8 +18,8 @@
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.7,
       "position": [
-        1040,
-        -60
+        900,
+        -200
       ],
       "id": "4bcc389c-0192-49c7-96b9-c65caae759d8",
       "name": "Basic LLM Chain"
@@ -37,8 +37,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
       "typeVersion": 1.3,
       "position": [
-        1040,
-        120
+        900,
+        0
       ],
       "id": "e7e930b1-2873-4f03-92f6-7961a5aae011",
       "name": "Anthropic Chat Model",
@@ -62,26 +62,11 @@
       "typeVersion": 2,
       "position": [
         -220,
-        -100
+        -95
       ],
       "id": "fa2e8f9b-b834-4d3c-a1f1-04e5e8210cee",
       "name": "Webhook",
       "webhookId": "c402fd6f-f1e1-4edb-84cf-4c448e71569a"
-    },
-    {
-      "parameters": {
-        "options": {
-          "responseCode": 200
-        }
-      },
-      "type": "n8n-nodes-base.respondToWebhook",
-      "typeVersion": 1.4,
-      "position": [
-        2260,
-        -60
-      ],
-      "id": "1d34fb90-6d3c-499b-b71a-bbba10404c7d",
-      "name": "Respond to Webhook"
     },
     {
       "parameters": {
@@ -100,8 +85,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        840,
-        260
+        660,
+        140
       ],
       "id": "e8470325-a90e-4eae-8eb5-d09f1bb3953a",
       "name": "Invalid Input"
@@ -123,8 +108,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        20,
-        -100
+        0,
+        -95
       ],
       "id": "221e9b71-88bf-4f86-82d8-8cb210b2c65c",
       "name": "initial vars"
@@ -156,8 +141,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        500,
-        -200
+        440,
+        -360
       ],
       "id": "0f89d684-9152-426d-b546-944123678ddf",
       "name": "environment check"
@@ -191,7 +176,7 @@
       "typeVersion": 2.2,
       "position": [
         220,
-        -100
+        -95
       ],
       "id": "e420f10f-5a28-4edc-a7ed-b3132be45a86",
       "name": "input present",
@@ -206,8 +191,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        840,
-        -320
+        660,
+        -400
       ],
       "id": "5f3a74fa-2243-49fc-bc68-d7503d7ab2a6",
       "name": "debug values"
@@ -248,8 +233,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        840,
-        -60
+        660,
+        -200
       ],
       "id": "6d22ae07-7c7c-4082-9266-225ae76d8aff",
       "name": "extract Q & A"
@@ -261,8 +246,8 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.3,
       "position": [
-        1200,
-        120
+        1060,
+        0
       ],
       "id": "ebb7fb7a-4119-427a-b7c1-2b5dafa7dce7",
       "name": "Structured Output Parser"
@@ -276,11 +261,26 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1400,
-        -60
+        1260,
+        -200
       ],
       "id": "1ea63800-b8b2-4bc6-927e-53e27ee14475",
       "name": "format for web-hook response"
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1460,
+        -400
+      ],
+      "id": "1d34fb90-6d3c-499b-b71a-bbba10404c7d",
+      "name": "Successful Response"
     },
     {
       "parameters": {
@@ -291,11 +291,11 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.4,
       "position": [
-        2260,
-        260
+        1460,
+        140
       ],
       "id": "2662e1cf-4ba2-4e4d-beae-1165d8c05995",
-      "name": "Respond to Webhook1"
+      "name": "Failed Response"
     }
   ],
   "pinData": {},
@@ -337,7 +337,7 @@
       "main": [
         [
           {
-            "node": "Respond to Webhook1",
+            "node": "Failed Response",
             "type": "main",
             "index": 0
           }
@@ -395,7 +395,7 @@
       "main": [
         [
           {
-            "node": "Respond to Webhook",
+            "node": "Successful Response",
             "type": "main",
             "index": 0
           }
@@ -428,14 +428,14 @@
       "main": [
         [
           {
-            "node": "Respond to Webhook",
+            "node": "Successful Response",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Respond to Webhook1": {
+    "Failed Response": {
       "main": [
         []
       ]
@@ -445,7 +445,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "51400199-7b98-4934-94b8-520ae020a41b",
+  "versionId": "bf6a7a32-450d-4305-b5f4-7532aa580779",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "e057fe4b559f465360e2e60b420b9b43619c1b1716a0993931ca0ddf89b6dca9"
