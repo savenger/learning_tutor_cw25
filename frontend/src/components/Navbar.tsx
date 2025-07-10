@@ -50,14 +50,12 @@ const Navbar: React.FC = () => {
               </Link>
             </li>
             <li>
-              <a
-                href="http://localhost:5173"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                to="/text-import"
                 className="text-white hover:text-blue-200 transition duration-300 flex items-center text-lg"
               >
                 <FaFileUpload className="mr-2" /> Import From Text
-              </a>
+              </Link>
             </li>
             <li>
               <Link

@@ -196,3 +196,56 @@ export const processDocument = async (file?: File) => {
 export const getFeedbackRecommendations = async () => {
   return fetchData<{ feedback: string }>(`${BASE_URL}/feedback`);
 };
+
+// Text Highlighting Webhook Integration
+export const sendToWebhook = async (text: string, highlights: any[]) => {
+  const payload = {
+    text,
+    highlights,
+    timestamp: new Date().toISOString()
+  };
+
+  try {
+    const response = await fetch('http://localhost:5678/webhook/create-deck', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Webhook error: ${response.status}`);
+    }
+
+    return { success: true, message: 'Successfully sent to webhook' };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Network error' };
+  }
+};
+
+export const sendToTestWebhook = async (text: string, highlights: any[]) => {
+  const payload = {
+    text,
+    highlights,
+    timestamp: new Date().toISOString()
+  };
+
+  try {
+    const response = await fetch('http://localhost:5678/webhook-test/create-deck', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Test webhook error: ${response.status}`);
+    }
+
+    return { success: true, message: 'Successfully sent to test webhook' };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Network error' };
+  }
+};

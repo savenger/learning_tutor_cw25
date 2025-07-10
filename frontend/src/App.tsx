@@ -5,6 +5,7 @@ import HomePage from './pages/HomePage';
 import DeckListPage from './pages/DeckListPage';
 import DeckPlayPage from './pages/DeckPlayPage';
 import DocumentImporterPage from './pages/DocumentImporterPage';
+import TextHighlightingPage from './pages/TextHighlightingPage';
 import FeedbackRecommendationPage from './pages/FeedbackRecommendationPage';
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
           <Route path="/decks" element={<DeckListPage />} />
           <Route path="/decks/:id/play" element={<DeckPlayPage />} />
           <Route path="/import" element={<DocumentImporterPage />} />
+          <Route path="/text-import" element={<TextHighlightingPage />} />
           <Route path="/feedback" element={<FeedbackRecommendationPage />} />
         </Routes>
       </main>
