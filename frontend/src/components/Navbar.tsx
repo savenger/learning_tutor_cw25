@@ -51,7 +51,7 @@ const Navbar: React.FC = () => {
             </li>
             <li>
               <a
-                href="http://frontend_importer:5173"
+                href="http://localhost:5173"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-white hover:text-blue-200 transition duration-300 flex items-center text-lg"

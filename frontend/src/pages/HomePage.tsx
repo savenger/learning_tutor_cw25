@@ -24,7 +24,7 @@ const HomePage: React.FC = () => {
             <FaFileUpload className="mr-3 text-2xl" /> Import Document
           </Button>
         </Link>
-        <a href="http://frontend_importer:5173" target="_blank" rel="noopener noreferrer">
+        <a href="http://localhost:5173" target="_blank" rel="noopener noreferrer">
           <Button size="lg" variant="secondary" className="flex items-center mb-4">
             <FaFileUpload className="mr-3 text-2xl" /> Import From Text
           </Button>
