@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FaHome, FaBook, FaFileUpload, FaLightbulb, FaRedo } from 'react-icons/fa';
+import { FaHome, FaBook, FaFileUpload, FaLightbulb, FaRedo, FaProjectDiagram } from 'react-icons/fa';
 import { resetFlashcardsSeen } from '../api/api';
 
 const Navbar: React.FC = () => {
@@ -63,6 +63,14 @@ const Navbar: React.FC = () => {
                 className="text-white hover:text-blue-200 transition duration-300 flex items-center text-lg"
               >
                 <FaLightbulb className="mr-2" /> Feedback
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/graph"
+                className="text-white hover:text-blue-200 transition duration-300 flex items-center text-lg"
+              >
+                <FaProjectDiagram className="mr-2" /> Graph
               </Link>
             </li>
           </ul>

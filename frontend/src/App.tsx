@@ -7,6 +7,7 @@ import DeckPlayPage from './pages/DeckPlayPage';
 import DocumentImporterPage from './pages/DocumentImporterPage';
 import TextHighlightingPage from './pages/TextHighlightingPage';
 import FeedbackRecommendationPage from './pages/FeedbackRecommendationPage';
+import GraphVisualizationPage from './pages/GraphVisualizationPage';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/import" element={<DocumentImporterPage />} />
           <Route path="/text-import" element={<TextHighlightingPage />} />
           <Route path="/feedback" element={<FeedbackRecommendationPage />} />
+          <Route path="/graph" element={<GraphVisualizationPage />} />
         </Routes>
       </main>
     </div>

@@ -249,3 +249,93 @@ export const sendToTestWebhook = async (text: string, highlights: any[]) => {
     return { success: false, error: error.message || 'Network error' };
   }
 };
+
+// Graph Data Management
+export const getGraphData = async (source: 'auto' | 'neo4j' | 'postgresql' = 'auto') => {
+  const url = `${BASE_URL}/graph?source=${source}`;
+  
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    
+    if (!response.ok) {
+      return { 
+        success: false, 
+        error: data.error || 'Failed to fetch graph data',
+        data: { nodes: [], relationships: [] },
+        nodeCount: 0,
+        relationshipCount: 0,
+        source: source
+      };
+    }
+    
+    return data;
+  } catch (error: any) {
+    return { 
+      success: false, 
+      error: error.message || 'Network error',
+      data: { nodes: [], relationships: [] },
+      nodeCount: 0,
+      relationshipCount: 0,
+      source: source
+    };
+  }
+};
+
+export const getKnowledgeGraphData = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/graph/knowledge`);
+    const data = await response.json();
+    
+    if (!response.ok) {
+      return { 
+        success: false, 
+        error: data.error || 'Failed to fetch knowledge graph data',
+        data: { nodes: [], relationships: [] },
+        nodeCount: 0,
+        relationshipCount: 0,
+        source: 'neo4j'
+      };
+    }
+    
+    return data;
+  } catch (error: any) {
+    return { 
+      success: false, 
+      error: error.message || 'Network error',
+      data: { nodes: [], relationships: [] },
+      nodeCount: 0,
+      relationshipCount: 0,
+      source: 'neo4j'
+    };
+  }
+};
+
+export const getPostgreSQLGraphData = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/graph/postgresql`);
+    const data = await response.json();
+    
+    if (!response.ok) {
+      return { 
+        success: false, 
+        error: data.error || 'Failed to fetch PostgreSQL graph data',
+        data: { nodes: [], relationships: [] },
+        nodeCount: 0,
+        relationshipCount: 0,
+        source: 'postgresql'
+      };
+    }
+    
+    return data;
+  } catch (error: any) {
+    return { 
+      success: false, 
+      error: error.message || 'Network error',
+      data: { nodes: [], relationships: [] },
+      nodeCount: 0,
+      relationshipCount: 0,
+      source: 'postgresql'
+    };
+  }
+};

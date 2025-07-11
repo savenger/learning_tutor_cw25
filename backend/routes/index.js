@@ -5,6 +5,7 @@ const FormData = require('form-data');
 const deckRoutes = require('./deck');
 const flashcardRoutes = require('./flashcard');
 const flashcardAnswerRoutes = require('./flashcardanswer');
+const graphRoutes = require('./graph');
 const { Deck, Flashcard, sequelize } = require('../models');
 
 // Configure multer for file uploads
@@ -20,6 +21,7 @@ const upload = multer({
 router.use('/decks', deckRoutes);
 router.use('/flashcards', flashcardRoutes);
 router.use('/flashcardanswers', flashcardAnswerRoutes);
+router.use('/graph', graphRoutes);
 
 // Feedback & Recommendations route
 router.get('/feedback', async (req, res) => {

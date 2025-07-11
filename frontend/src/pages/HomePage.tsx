@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Container from '../components/Container';
 import Button from '../components/Button';
-import { FaBook, FaFileUpload, FaLightbulb } from 'react-icons/fa';
+import { FaBook, FaFileUpload, FaLightbulb, FaProjectDiagram } from 'react-icons/fa';
 
 const HomePage: React.FC = () => {
   return (
@@ -32,6 +32,11 @@ const HomePage: React.FC = () => {
         <Link to="/feedback">
           <Button size="lg" variant="success" className="flex items-center mb-4">
             <FaLightbulb className="mr-3 text-2xl" /> Get Feedback
+          </Button>
+        </Link>
+        <Link to="/graph">
+          <Button size="lg" variant="secondary" className="flex items-center mb-4">
+            <FaProjectDiagram className="mr-3 text-2xl" /> Knowledge Graph
           </Button>
         </Link>
       </div>
